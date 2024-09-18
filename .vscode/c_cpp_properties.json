@@ -1,9 +1,12 @@
 {
   "configurations": [
     {
+      "name": "Mac",
+      "defines": [],
+      "includePath": ["${workspaceFolder}/**"],
       "compilerPath": "/Users/lukasz.celitan/git/flipperzero-firmware/toolchain/current/bin/arm-none-eabi-gcc",
       "intelliSenseMode": "gcc-arm",
-      "compileCommands": "/Users/lukasz.celitan/git/flipperzero-firmware/build/latest/compile_commands.json",
+      "compileCommands": "${workspaceFolder}/.vscode/compile_commands.json",
       "cStandard": "gnu23",
       "cppStandard": "c++20"
     }

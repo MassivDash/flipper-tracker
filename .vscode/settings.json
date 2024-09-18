@@ -19,8 +19,10 @@
   "clangd.path": "/Users/lukasz.celitan/git/flipperzero-firmware/toolchain/current/bin/clangd",
   "clangd.arguments": [
     "--query-driver=**/arm-none-eabi-*",
-    "--compile-commands-dir=/Users/lukasz.celitan/git/flipperzero-firmware/build/latest",
+    "--compile-commands-dir=${workspaceFolder}/.vscode/clang_compile_commands/",
     "--clang-tidy",
     "--header-insertion=never"
-  ]
+  ],
+  "clangd.onConfigChanged": "restart",
+  "clangd.inactiveRegions.useBackgroundHighlight": true
 }

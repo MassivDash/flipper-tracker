@@ -2,3 +2,4 @@ dist
 .clang-format
 .editorconfig
 .DS_Store
+**/.cache/

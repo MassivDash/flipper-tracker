@@ -1,6 +1,6 @@
-#include "app/app.h"
-#include "app/enums.h" // Has all the Id's / Enums
 
+#include "../app.h"
+#include "../enums.h" // Has all the Id's / Enums
 #include <furi.h>
 #include <gui/gui.h>
 #include <gui/icon_i.h>

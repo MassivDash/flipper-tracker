@@ -1,0 +1,26 @@
+{
+  "workbench.tree.indent": 12,
+  "cortex-debug.enableTelemetry": false,
+  "cortex-debug.variableUseNaturalFormat": true,
+  "cortex-debug.armToolchainPath": "/Users/lukasz.celitan/git/flipperzero-firmware/toolchain/current/bin",
+  "cortex-debug.openocdPath": "/Users/lukasz.celitan/git/flipperzero-firmware/toolchain/current/bin/openocd",
+  "cortex-debug.gdbPath": "/Users/lukasz.celitan/git/flipperzero-firmware/toolchain/current/bin/arm-none-eabi-gdb-py3",
+  "editor.formatOnSave": true,
+  "files.associations": {
+    "*.scons": "python",
+    "SConscript": "python",
+    "SConstruct": "python",
+    "*.fam": "python",
+    "gui.h": "c",
+    "dolphin.h": "c",
+    "stdlib.h": "c",
+    "input.h": "c"
+  },
+  "clangd.path": "/Users/lukasz.celitan/git/flipperzero-firmware/toolchain/current/bin/clangd",
+  "clangd.arguments": [
+    "--query-driver=**/arm-none-eabi-*",
+    "--compile-commands-dir=/Users/lukasz.celitan/git/flipperzero-firmware/build/latest",
+    "--clang-tidy",
+    "--header-insertion=never"
+  ]
+}

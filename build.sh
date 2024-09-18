@@ -1,3 +1,3 @@
 #!/bin/bash
 
-ufbt
+pipx run ufbt

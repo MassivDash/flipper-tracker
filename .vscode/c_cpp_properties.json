@@ -1,16 +1,11 @@
 {
   "configurations": [
     {
-      "name": "Mac",
-      "includePath": ["${workspaceFolder}/**"],
-      "defines": [],
-      "macFrameworkPath": [
-        "/Library/Developer/CommandLineTools/SDKs/MacOSX14.sdk/System/Library/Frameworks"
-      ],
-      "compilerPath": "/usr/local/opt/llvm/bin/clang",
+      "compilerPath": "/Users/lukasz.celitan/git/flipperzero-firmware/toolchain/current/bin/arm-none-eabi-gcc",
+      "intelliSenseMode": "gcc-arm",
+      "compileCommands": "/Users/lukasz.celitan/git/flipperzero-firmware/build/latest/compile_commands.json",
       "cStandard": "gnu23",
-      "cppStandard": "c++20",
-      "intelliSenseMode": "gcc-arm"
+      "cppStandard": "c++20"
     }
   ],
   "version": 4

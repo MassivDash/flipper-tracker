@@ -1,5 +1,6 @@
 #include <gui/modules/menu.h>
 #include <gui/modules/popup.h>
+#include <gui/modules/submenu.h>
 #include <gui/scene_manager.h>
 #include <gui/view_dispatcher.h>
 #include <storage/storage.h>
@@ -14,6 +15,7 @@ typedef struct {
   SceneManager *scene_manager;
   ViewDispatcher *view_dispatcher;
   Menu *menu;
+  Submenu *submenu;
   Popup *popup;
   Tasks *tasks;
 } App;

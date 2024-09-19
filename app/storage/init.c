@@ -12,7 +12,8 @@ void storage_init(App *app) {
     return;
   }
 
-  Task test_task = {.name = "Test Task",
+  Task test_task = {.id = "1",
+                    .name = "Test Task",
                     .description = "This is a test task",
                     .price_per_hour = 25.0,
                     .start_time = "2023-10-01 10:00",

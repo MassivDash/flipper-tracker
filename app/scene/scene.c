@@ -1,7 +1,7 @@
 
 #include "../app.h"
-#include "../enums.h" // Has all the Id's / Enums
-
+#include "../enums.h"                // Has all the Id's / Enums
+#include "./show_stats/show_stats.h" // scenes
 // scenes
 #include "./main_menu/main_menu.h"
 #include "./quick_start/quick_start.h"
@@ -12,20 +12,21 @@
 
 /** collection of all scene on_enter handlers - in the same order as their enum
  */
-void (*const scene_on_enter_handlers[])(void *) = {scene_on_enter_main_menu,
-                                                   scene_on_enter_popup_one,
-                                                   scene_on_enter_popup_two};
+void (*const scene_on_enter_handlers[])(void *) = {
+    scene_on_enter_main_menu, scene_on_enter_popup_one,
+    scene_on_enter_popup_two, scene_on_enter_show_stats};
 
 /** collection of all scene on event handlers - in the same order as their enum
  */
 bool (*const scene_on_event_handlers[])(void *, SceneManagerEvent) = {
     scene_on_event_main_menu, scene_on_event_popup_one,
-    scene_on_event_popup_two};
+    scene_on_event_popup_two, scene_on_event_show_stats};
 
 /** collection of all scene on exit handlers - in the same order as their enum
  */
 void (*const scene_on_exit_handlers[])(void *) = {
-    scene_on_exit_main_menu, scene_on_exit_popup_one, scene_on_exit_popup_two};
+    scene_on_exit_main_menu, scene_on_exit_popup_one, scene_on_exit_popup_two,
+    scene_on_exit_show_stats};
 
 /** collection of all on_enter, on_event, on_exit handlers */
 const SceneManagerHandlers scene_event_handlers = {
@@ -65,6 +66,7 @@ void view_dispatcher_init(App *app) {
   FURI_LOG_D(TAG, "view_dispatcher_init allocating views");
   app->menu = menu_alloc();
   app->popup = popup_alloc();
+  app->submenu = submenu_alloc();
 
   // assign callback that pass events from views to the scene manager
   FURI_LOG_D(TAG, "view_dispatcher_init setting callbacks");
@@ -82,4 +84,8 @@ void view_dispatcher_init(App *app) {
   FURI_LOG_D(TAG, "view_dispatcher_init adding view popup");
   view_dispatcher_add_view(app->view_dispatcher, AppView_Popup,
                            popup_get_view(app->popup));
+
+  FURI_LOG_D(TAG, "view_dispatcher_init adding view submenu");
+  view_dispatcher_add_view(app->view_dispatcher, AppView_ShowStats,
+                           submenu_get_view(app->submenu));
 }

@@ -23,8 +23,7 @@ void menu_callback_main_menu(void *context, uint32_t index) {
                                       AppEvent_ShowCreateTask);
     break;
   case ShowStats_Menu:
-    scene_manager_handle_custom_event(app->scene_manager,
-                                      AppEvent_ShowCreateTask);
+    scene_manager_handle_custom_event(app->scene_manager, AppEvent_ShowStats);
     break;
   case Exit_Menu:
     scene_manager_handle_back_event(app->scene_manager);
@@ -72,8 +71,13 @@ bool scene_on_event_main_menu(void *context, SceneManagerEvent event) {
       scene_manager_next_scene(app->scene_manager, CreateTask);
       consumed = true;
       break;
+    case AppEvent_ShowStats:
+      scene_manager_next_scene(app->scene_manager, ShowStats);
+      consumed = true;
+      break;
     }
     break;
+
   default: // eg. SceneManagerEventTypeBack, SceneManagerEventTypeTick
     consumed = false;
     break;

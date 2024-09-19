@@ -3,13 +3,16 @@
 #ifndef ENUMS_H
 #define ENUMS_H
 
-typedef enum { MainMenu, QuickStart, CreateTask, Count } AppScene;
+typedef enum { MainMenu, QuickStart, CreateTask, ShowStats, Count } AppScene;
 
-/** ids for the 2 types of view used by the app */
-typedef enum { AppView_Menu, AppView_Popup } AppView;
+typedef enum { AppView_Menu, AppView_Popup, AppView_ShowStats } AppView;
 
 /** all custom events */
-typedef enum { AppEvent_ShowQuickStart, AppEvent_ShowCreateTask } AppEvent;
+typedef enum {
+  AppEvent_ShowQuickStart,
+  AppEvent_ShowCreateTask,
+  AppEvent_ShowStats
+} AppEvent;
 
 /* main menu scene */
 
@@ -24,6 +27,7 @@ typedef enum {
 
 // Define the Task structure
 typedef struct {
+  char id[50];
   char name[50];
   char description[100];
   float price_per_hour;

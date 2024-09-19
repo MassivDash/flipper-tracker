@@ -58,28 +58,26 @@ bool write_task_to_csv(App *app, const Task *task) {
 
 static bool read_line_from_file(App *app, FuriString *str_result) {
   furi_string_reset(str_result);
-  uint8_t buffer[32];
+  uint8_t buffer[1]; // Read one character at a time
   bool result = false;
 
   FURI_LOG_I(TAG, "starting to read the file");
 
-  do {
+  while (true) {
     size_t read_count = storage_file_read(app->file, buffer, sizeof(buffer));
     FURI_LOG_I(TAG, "read count: %zu", read_count);
 
-    for (size_t i = 0; i < read_count; i++) {
-      if (buffer[i] == '\n') {
-        result = true;
-        break;
-      } else {
-        furi_string_push_back(str_result, buffer[i]);
-      }
+    if (read_count == 0) {
+      break; // End of file
     }
 
-    if (result || read_count == 0) {
-      break;
+    if (buffer[0] == '\n') {
+      result = true;
+      break; // End of line
+    } else {
+      furi_string_push_back(str_result, buffer[0]);
     }
-  } while (true);
+  }
 
   // Ensure the string is null-terminated
   furi_string_push_back(str_result, '\0');
@@ -87,7 +85,6 @@ static bool read_line_from_file(App *app, FuriString *str_result) {
   FURI_LOG_I(TAG, "result: %s", furi_string_get_cstr(str_result));
   return result;
 }
-
 // This is wrong FIX !!
 bool read_tasks_from_csv(App *app) {
   // Allocate a FuriString buffer
@@ -102,14 +99,16 @@ bool read_tasks_from_csv(App *app) {
   furi_assert(app);
   FURI_LOG_I(TAG, "read_tasks_from_csv");
 
+  storage_file_truncate(app->file);
+
   while (read_line_from_file(app, buffer)) {
     FURI_LOG_I(TAG, "while");
     // Allocate a task
     Task task = {0};
 
     sscanf(furi_string_get_cstr(buffer),
-           "%49[^,],%63[^,],%147[^,],%f,%19[^,],%19[^,],%u,", task.id,
-           task.name, task.description, &task.price_per_hour, task.start_time,
+           "%49[^,],%49[^,],%99[^,],%f,%19[^,],%19[^,],%u,", task.id, task.name,
+           task.description, &task.price_per_hour, task.start_time,
            task.end_time, &task.total_time_minutes);
 
     // LOG NAME FOR TESTING

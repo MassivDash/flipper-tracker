@@ -4,10 +4,17 @@
 
 #define TAG "tracker_app"
 
-void tasks_init(Tasks *tasks) {
-  tasks->array = NULL;
-  tasks->size = 0;
-  tasks->capacity = 0;
+void tasks_init(App *app) {
+  if (app->tasks == NULL) {
+    app->tasks = malloc(sizeof(Tasks));
+    if (app->tasks == NULL) {
+      FURI_LOG_E(TAG, "Failed to allocate memory for tasks");
+      return;
+    }
+  }
+  app->tasks->array = NULL;
+  app->tasks->size = 0;
+  app->tasks->capacity = 0;
 }
 
 void tasks_add(Tasks *tasks, const Task *task) {
@@ -88,22 +95,29 @@ static bool read_line_from_file(File *file, FuriString *str_result) {
 }
 
 bool read_tasks_from_csv(File *file, Tasks *tasks) {
+  // Allocate a FuriString buffer
   FuriString *buffer = furi_string_alloc();
-  Task task;
-  bool result = true;
-
-  while (read_line_from_file(file, buffer)) {
-    if (sscanf(furi_string_get_cstr(buffer),
-               "%49[^,],%149[^,],%f,%19[^,],%19[^,],%u", task.name,
-               task.description, &task.price_per_hour, task.start_time,
-               task.end_time, &task.total_time_minutes) == 6) {
-      tasks_add(tasks, &task);
-    } else {
-      result = false;
-      break;
-    }
+  if (buffer == NULL) {
+    FURI_LOG_E(TAG, "Failed to allocate FuriString buffer");
+    return false;
   }
 
+  // Read the file line by line
+  while (read_line_from_file(file, buffer)) {
+    // Allocate a task
+    Task task = {0};
+
+    FURI_LOG_E(TAG, "Failed to allocate FuriString buffer");
+    // Parse the task from the buffer
+    sscanf(furi_string_get_cstr(buffer), "%[^,],%[^,],%f,%[^,],%[^,],%u",
+           task.name, task.description, &task.price_per_hour, task.start_time,
+           task.end_time, &task.total_time_minutes);
+
+    // Add the task to the tasks
+    tasks_add(tasks, &task);
+  }
+
+  // Free the buffer
   furi_string_free(buffer);
-  return result;
+  return true;
 }

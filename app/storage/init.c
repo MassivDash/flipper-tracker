@@ -7,6 +7,11 @@
 
 void storage_init(App *app) {
 
+  if (!app) {
+    FURI_LOG_E(TAG, "App is NULL");
+    return;
+  }
+
   Task test_task = {.name = "Test Task",
                     .description = "This is a test task",
                     .price_per_hour = 25.0,
@@ -26,12 +31,9 @@ void storage_init(App *app) {
 
     // Read file from csv and store in tasks
 
-    // for now add a dummy task into app->tasks
-    tasks_add(app->tasks, &test_task);
-
-    // if (!read_tasks_from_csv(file, app->tasks)) {
-    //   FURI_LOG_E(TAG, "Failed to read tasks from CSV file");
-    // }
+    if (!read_tasks_from_csv(file, app->tasks)) {
+      FURI_LOG_E(TAG, "Failed to read tasks from CSV file");
+    }
 
     storage_file_close(file);
   } else {
@@ -44,6 +46,10 @@ void storage_init(App *app) {
     }
 
     // Write the test task to the file
+    if (!write_task_to_csv(file, &test_task)) {
+      FURI_LOG_E(TAG, "Failed to write test task to CSV file");
+    }
+
     if (!write_task_to_csv(file, &test_task)) {
       FURI_LOG_E(TAG, "Failed to write test task to CSV file");
     }

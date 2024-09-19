@@ -7,6 +7,7 @@
 #include <gui/modules/popup.h>
 #include <gui/scene_manager.h>
 #include <gui/view_dispatcher.h>
+#include <storage/storage.h>
 
 #define TAG "tracker_app"
 
@@ -18,5 +19,6 @@ void app_free(App *app) {
   view_dispatcher_free(app->view_dispatcher);
   menu_free(app->menu);
   popup_free(app->popup);
+  furi_record_close(RECORD_STORAGE);
   free(app);
 }

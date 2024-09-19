@@ -1,3 +1,5 @@
+#include <stdlib.h>
+
 #ifndef ENUMS_H
 #define ENUMS_H
 
@@ -19,5 +21,21 @@ typedef enum {
   ShowStats_Menu,
   Exit_Menu
 } AppMenuSelection;
+
+// Define the Task structure
+typedef struct {
+  char name[50];
+  char description[100];
+  float price_per_hour;
+  char start_time[20];
+  char end_time[20];
+  unsigned int total_time_minutes;
+} Task;
+
+typedef struct {
+  Task *array;
+  size_t size;
+  size_t capacity;
+} Tasks;
 
 #endif // ENUMS_H

@@ -1,4 +1,5 @@
 /** initialise app data, scene manager, and view dispatcher */
+#include "storage/init.h"
 #include "app.h"
 #include "scene/scene.h"
 
@@ -9,6 +10,7 @@
 App *init() {
   FURI_LOG_T(TAG, "init");
   App *app = malloc(sizeof(App));
+  storage_init(app);
   scene_manager_init(app);
   view_dispatcher_init(app);
   return app;

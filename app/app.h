@@ -18,6 +18,7 @@ typedef struct {
   Submenu *submenu;
   Popup *popup;
   Tasks *tasks;
+  File *file;
 } App;
 
 #endif // APP_H

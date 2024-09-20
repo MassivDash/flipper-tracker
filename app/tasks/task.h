@@ -11,4 +11,5 @@ void tasks_add(App *app, const Task *task);
 void tasks_free(App *app);
 bool write_task_to_csv(App *app, const Task *task);
 bool read_tasks_from_csv(App *app);
+bool delete_task_from_csv(App *app, const char *task_id);
 #endif // TASK_H

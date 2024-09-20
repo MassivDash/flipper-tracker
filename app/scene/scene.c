@@ -1,7 +1,7 @@
 
 #include "../app.h"
 #include "../enums.h"                // Has all the Id's / Enums
-#include "./show_stats/show_stats.h" // scenes
+#include "./view_tasks/view_tasks.h" // scenes
 // scenes
 #include "./main_menu/main_menu.h"
 #include "./quick_start/quick_start.h"
@@ -14,19 +14,19 @@
  */
 void (*const scene_on_enter_handlers[])(void *) = {
     scene_on_enter_main_menu, scene_on_enter_popup_one,
-    scene_on_enter_popup_two, scene_on_enter_show_stats};
+    scene_on_enter_popup_two, scene_on_enter_view_tasks};
 
 /** collection of all scene on event handlers - in the same order as their enum
  */
 bool (*const scene_on_event_handlers[])(void *, SceneManagerEvent) = {
     scene_on_event_main_menu, scene_on_event_popup_one,
-    scene_on_event_popup_two, scene_on_event_show_stats};
+    scene_on_event_popup_two, scene_on_event_view_tasks};
 
 /** collection of all scene on exit handlers - in the same order as their enum
  */
 void (*const scene_on_exit_handlers[])(void *) = {
     scene_on_exit_main_menu, scene_on_exit_popup_one, scene_on_exit_popup_two,
-    scene_on_exit_show_stats};
+    scene_on_exit_view_tasks};
 
 /** collection of all on_enter, on_event, on_exit handlers */
 const SceneManagerHandlers scene_event_handlers = {
@@ -86,6 +86,6 @@ void view_dispatcher_init(App *app) {
                            popup_get_view(app->popup));
 
   FURI_LOG_D(TAG, "view_dispatcher_init adding view submenu");
-  view_dispatcher_add_view(app->view_dispatcher, AppView_ShowStats,
+  view_dispatcher_add_view(app->view_dispatcher, AppView_ViewTasks,
                            submenu_get_view(app->submenu));
 }

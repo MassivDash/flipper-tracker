@@ -9,6 +9,7 @@
 App *init() {
   FURI_LOG_T(TAG, "init");
   App *app = malloc(sizeof(App));
+  current_task_init(app);
   tasks_init(app);
   storage_init(app);
   scene_manager_init(app);

@@ -1,6 +1,7 @@
 #include <gui/modules/menu.h>
 #include <gui/modules/popup.h>
 #include <gui/modules/submenu.h>
+#include <gui/modules/variable_item_list.h>
 #include <gui/scene_manager.h>
 #include <gui/view_dispatcher.h>
 #include <storage/storage.h>
@@ -16,9 +17,12 @@ typedef struct {
   ViewDispatcher *view_dispatcher;
   Menu *menu;
   Submenu *submenu;
+  Submenu *submenu_task_actions;
   Popup *popup;
   Tasks *tasks;
+  Task *current_task;
   File *file;
+  VariableItemList *variable_item_list;
 } App;
 
 #endif // APP_H

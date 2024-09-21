@@ -1,5 +1,6 @@
 #include "app.h"
 #include "enums.h"
+#include "tasks/task.h"
 #include <furi.h>
 #include <gui/gui.h>
 #include <gui/icon_i.h>
@@ -18,10 +19,14 @@ void app_free(App *app) {
   view_dispatcher_remove_view(app->view_dispatcher, AppView_Menu);
   view_dispatcher_remove_view(app->view_dispatcher, AppView_Popup);
   view_dispatcher_remove_view(app->view_dispatcher, AppView_ViewTasks);
+  view_dispatcher_remove_view(app->view_dispatcher, AppView_TaskActions);
   view_dispatcher_free(app->view_dispatcher);
   menu_free(app->menu);
   popup_free(app->popup);
   submenu_free(app->submenu);
+  submenu_free(app->submenu_task_actions);
+  tasks_free(app->tasks);
+  current_task_free(app->current_task);
   furi_record_close(RECORD_STORAGE);
   free(app);
 }

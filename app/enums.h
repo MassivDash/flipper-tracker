@@ -3,15 +3,29 @@
 #ifndef ENUMS_H
 #define ENUMS_H
 
-typedef enum { MainMenu, QuickStart, CreateTask, ViewTasks, Count } AppScene;
+typedef enum {
+  MainMenu,
+  QuickStart,
+  CreateTask,
+  ViewTasks,
+  TaskActions,
+  ViewTaskDetails,
+  Count
+} AppScene;
 
-typedef enum { AppView_Menu, AppView_Popup, AppView_ViewTasks } AppView;
+typedef enum {
+  AppView_Menu,
+  AppView_Popup,
+  AppView_ViewTasks,
+  AppView_TaskActions
+} AppView;
 
 /** all custom events */
 typedef enum {
   AppEvent_ShowQuickStart,
   AppEvent_ShowCreateTask,
-  AppEvent_ViewTasks
+  AppEvent_ViewTasks,
+  AppEvent_TaskActions,
 } AppEvent;
 
 /* main menu scene */
@@ -22,6 +36,12 @@ typedef enum {
   CreateTask_Menu,
   ViewTasks_Menu,
 } AppMenuSelection;
+
+typedef enum {
+  TaskAction_Continue,
+  TaskAction_Edit,
+  TaskAction_Stats,
+} TaskActionMenu;
 
 // Define the Task structure
 typedef struct {

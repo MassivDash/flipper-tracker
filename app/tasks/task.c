@@ -11,6 +11,22 @@ void tasks_init(App *app) {
   app->tasks->capacity = 0;
 }
 
+void current_task_init(App *app) {
+  app->current_task = malloc(sizeof(Task));
+  app->current_task->id[0] = '\0';
+  app->current_task->name[0] = '\0';
+  app->current_task->description[0] = '\0';
+  app->current_task->price_per_hour = 0.0;
+  app->current_task->start_time[0] = '\0';
+  app->current_task->end_time[0] = '\0';
+  app->current_task->total_time_minutes = 0;
+}
+
+void current_task_free(Task *current_task) {
+  free(current_task);
+  current_task = NULL;
+}
+
 void tasks_add(App *app, const Task *task) {
   Tasks *tasks = app->tasks;
   if (tasks->size == tasks->capacity) {
@@ -25,8 +41,7 @@ void tasks_add(App *app, const Task *task) {
   tasks->array[tasks->size++] = *task;
 }
 
-void tasks_free(App *app) {
-  Tasks *tasks = app->tasks;
+void tasks_free(Tasks *tasks) {
   free(tasks->array);
   tasks->array = NULL;
   tasks->size = 0;

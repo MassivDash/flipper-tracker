@@ -1,8 +1,8 @@
 /** initialise app data, scene manager, and view dispatcher */
-#include "storage/init.h"
-#include "app.h"
-#include "scene/scene.h"
-#include "tasks/task.h"
+#include "../storage/init.h"
+#include "../app.h"
+#include "../scene/scene.h"
+#include "../tasks/task.h"
 
 #define TAG "tracker_app"
 

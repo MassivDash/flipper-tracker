@@ -1,6 +1,6 @@
-#include "app.h"
-#include "structs.h"
-#include "tasks/task.h"
+#include "../app.h"
+#include "../structs.h"
+#include "../tasks/task.h"
 #include <furi.h>
 #include <gui/gui.h>
 #include <gui/icon_i.h>

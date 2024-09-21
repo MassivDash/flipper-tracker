@@ -1,16 +1,13 @@
 #include <furi.h>
 #include <gui/gui.h>
-#include <gui/icon_i.h>
-#include <gui/modules/menu.h>
-#include <gui/modules/popup.h>
 #include <gui/scene_manager.h>
 #include <gui/view_dispatcher.h>
 
 #define TAG "tracker_app"
 
 #include "app/app.h"
-#include "app/free.h"
-#include "app/init.h"
+#include "app/free/free.h"
+#include "app/init/init.h"
 #include "app/structs.h"
 
 /** go to trace log level in the dev environment */

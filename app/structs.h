@@ -1,8 +1,8 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#ifndef ENUMS_H
-#define ENUMS_H
+#ifndef STRUCTS_H
+#define STRUCTS_H
 
 typedef enum {
   MainMenu,
@@ -64,4 +64,4 @@ typedef struct {
   size_t capacity;
 } Tasks;
 
-#endif // ENUMS_H
+#endif // STRUCTS_H

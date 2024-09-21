@@ -1,6 +1,6 @@
 
 #include "../app.h"
-#include "../enums.h"                // Has all the Id's / Enums
+#include "../structs.h"              // Has all the Id's / Enums
 #include "./view_tasks/view_tasks.h" // scenes
 // scenes
 #include "./main_menu/main_menu.h"

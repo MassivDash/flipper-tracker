@@ -1,5 +1,5 @@
 #include "../../app.h"
-#include "../../enums.h"
+#include "../../structs.h"
 #include "../../tasks/task.h"
 #include <furi.h>
 #include <furi_hal.h>

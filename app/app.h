@@ -6,7 +6,7 @@
 #include <gui/view_dispatcher.h>
 #include <storage/storage.h>
 
-#include "enums.h"
+#include "structs.h"
 
 // app/app.h
 #ifndef APP_H

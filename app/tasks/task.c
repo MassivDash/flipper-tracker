@@ -1,5 +1,4 @@
 #include "../app.h"
-#include "../enums.h"
 #include <furi.h>
 #include <stdlib.h>
 #include <storage/storage.h>

@@ -4,7 +4,7 @@
 #include "../app.h"
 #include <storage/storage.h>
 
-#include "../enums.h"
+#include "../structs.h"
 
 void tasks_init(App *app);
 void tasks_add(App *app, const Task *task);

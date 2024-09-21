@@ -9,9 +9,9 @@
 #define TAG "tracker_app"
 
 #include "app/app.h"
-#include "app/enums.h"
 #include "app/free.h"
 #include "app/init.h"
+#include "app/structs.h"
 
 /** go to trace log level in the dev environment */
 void set_log_level() {

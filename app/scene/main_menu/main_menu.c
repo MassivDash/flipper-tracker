@@ -1,5 +1,5 @@
 #include "../../app.h"
-#include "../../enums.h"
+#include "../../structs.h"
 #include <furi.h>
 
 #define TAG "tracker_app"

@@ -19,6 +19,8 @@ void storage_init(App *app) {
                     .price_per_hour = 25.0,
                     .start_time = "2023-10-01 10:00",
                     .end_time = "2023-10-01 12:00",
+                    .last_start_time = "2023-10-01 10:00",
+                    .completed = false,
                     .total_time_minutes = 120};
 
   Task test_task2 = {.id = "ID2",
@@ -27,6 +29,8 @@ void storage_init(App *app) {
                      .price_per_hour = 25.0,
                      .start_time = "2023-10-01 10:00",
                      .end_time = "2023-10-01 12:00",
+                     .last_start_time = "2023-10-01 10:00",
+                     .completed = true,
                      .total_time_minutes = 120};
 
   // Open storage

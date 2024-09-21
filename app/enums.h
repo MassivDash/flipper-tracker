@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include <stdlib.h>
 
 #ifndef ENUMS_H
@@ -51,6 +52,8 @@ typedef struct {
   float price_per_hour;
   char start_time[20];
   char end_time[20];
+  char last_start_time[20];
+  bool completed;
   unsigned int total_time_minutes;
 } Task;
 

@@ -19,6 +19,8 @@ void current_task_init(App *app) {
   app->current_task->price_per_hour = 0.0;
   app->current_task->start_time[0] = '\0';
   app->current_task->end_time[0] = '\0';
+  app->current_task->last_start_time[0] = '\0';
+  app->current_task->completed = false;
   app->current_task->total_time_minutes = 0;
 }
 
@@ -53,9 +55,10 @@ bool write_task_to_csv(App *app, const Task *task) {
   FuriString *buffer = furi_string_alloc();
 
   // Format the task into the buffer
-  furi_string_printf(buffer, "%s,%s,%s,%.2f,%s,%s,%u,\n", task->id, task->name,
-                     task->description, (double)task->price_per_hour,
-                     task->start_time, task->end_time,
+  furi_string_printf(buffer, "%s,%s,%s,%.2f,%s,%s,%s,%d,%u,\n", task->id,
+                     task->name, task->description,
+                     (double)task->price_per_hour, task->start_time,
+                     task->end_time, task->last_start_time, task->completed,
                      task->total_time_minutes);
 
   // Write the buffer to the file
@@ -173,26 +176,42 @@ bool read_tasks_from_csv(App *app) {
   if (!storage_file_open(app->file, APP_DATA_PATH("data.csv"), FSAM_READ,
                          FSOM_OPEN_EXISTING)) {
     FURI_LOG_E(TAG, "Failed to open file");
+    furi_string_free(buffer);
     return false;
   }
 
   furi_assert(app);
   FURI_LOG_I(TAG, "read_tasks_from_csv");
 
-  storage_file_truncate(app->file);
-
   while (read_line_from_file(app, buffer)) {
     FURI_LOG_I(TAG, "while");
     // Allocate a task
     Task task = {0};
 
-    sscanf(furi_string_get_cstr(buffer),
-           "%49[^,],%49[^,],%99[^,],%f,%19[^,],%19[^,],%u,", task.id, task.name,
-           task.description, &task.price_per_hour, task.start_time,
-           task.end_time, &task.total_time_minutes);
+    // Ensure the buffer is null-terminated
+    const char *buffer_str = furi_string_get_cstr(buffer);
+    FURI_LOG_I(TAG, "Buffer string: %s", buffer_str);
+
+    // Temporary string to hold price_per_hour
+    char price_per_hour_str[20] = {0};
+
+    sscanf(buffer_str,
+           "%49[^,],%49[^,],%99[^,],%19[^,],%19[^,],%19[^,],%19[^,],%d,%u",
+           task.id, task.name, task.description, price_per_hour_str,
+           task.start_time, task.end_time, task.last_start_time,
+           (int *)&task.completed, &task.total_time_minutes);
+
+    // Convert price_per_hour_str to float
+    task.price_per_hour = strtof(price_per_hour_str, NULL);
 
     // LOG NAME FOR TESTING
-    FURI_LOG_I(TAG, "Task name: %s", task.name);
+    FURI_LOG_I(TAG,
+               "Task details: ID=%s, Name=%s, Description=%s, "
+               "PricePerHour=%.2f, StartTime=%s, EndTime=%s, LastStartTime=%s, "
+               "Completed=%d, TotalTimeMinutes=%u",
+               task.id, task.name, task.description,
+               (double)task.price_per_hour, task.start_time, task.end_time,
+               task.last_start_time, task.completed, task.total_time_minutes);
 
     // Add the task to the tasks
     tasks_add(app, &task);
@@ -201,5 +220,6 @@ bool read_tasks_from_csv(App *app) {
   // Free the buffer
   FURI_LOG_I(TAG, "closed file");
   furi_string_free(buffer);
+  storage_file_close(app->file);
   return true;
 }

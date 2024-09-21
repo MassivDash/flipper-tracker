@@ -209,11 +209,10 @@ bool find_and_replace_task_in_csv(App *app, const Task *current_task) {
   FURI_LOG_I(TAG, "Finding and replacing task with ID: %s", current_task->id);
   furi_assert(app);
 
-  // Allocate a FuriString buffer for task line
+  // Allocate a FuriString buffer for reading lines
   FuriString *buffer_task = furi_string_alloc();
-
-  // Allocate a FuriString buffer for old content
-  FuriString *buffer_rest = furi_string_alloc();
+  // Allocate a FuriString buffer for the new content
+  FuriString *buffer_new_content = furi_string_alloc();
 
   bool task_found = false;
 
@@ -221,7 +220,7 @@ bool find_and_replace_task_in_csv(App *app, const Task *current_task) {
                          FSOM_OPEN_EXISTING)) {
     FURI_LOG_E(TAG, "Failed to open file for reading");
     furi_string_free(buffer_task);
-    furi_string_free(buffer_rest);
+    furi_string_free(buffer_new_content);
     storage_file_close(app->file);
     return false;
   }
@@ -246,9 +245,10 @@ bool find_and_replace_task_in_csv(App *app, const Task *current_task) {
     FURI_LOG_I(TAG, "Read line with ID: %s", task.id);
 
     if (strcmp(task.id, current_task->id) != 0) {
-      // If the current line does not match the task_id, append it to
-      // new_content
-      furi_string_printf(buffer_rest, "%s\n", buffer_str);
+      // If the current line does not match the task_id, append it to new
+      // content
+      furi_string_cat(buffer_new_content, buffer_str);
+      furi_string_cat(buffer_new_content, "\n");
     } else {
       // Replace the task with the current_task
       furi_string_printf(
@@ -257,6 +257,7 @@ bool find_and_replace_task_in_csv(App *app, const Task *current_task) {
           (double)current_task->price_per_hour, current_task->start_time,
           current_task->end_time, current_task->last_start_time,
           current_task->completed, current_task->total_time_minutes);
+      furi_string_cat(buffer_new_content, furi_string_get_cstr(buffer_task));
       task_found = true;
     }
   }
@@ -266,26 +267,21 @@ bool find_and_replace_task_in_csv(App *app, const Task *current_task) {
 
   if (task_found) {
     // Reopen the file for writing
-    if (!storage_file_open(app->file, APP_DATA_PATH("data.csv"),
-                           FSAM_READ_WRITE, FSOM_CREATE_ALWAYS)) {
+    if (!storage_file_open(app->file, APP_DATA_PATH("data.csv"), FSAM_WRITE,
+                           FSOM_CREATE_ALWAYS)) {
       FURI_LOG_E(TAG, "Failed to open file for writing");
-      furi_string_free(buffer_rest);
       furi_string_free(buffer_task);
+      furi_string_free(buffer_new_content);
       storage_file_close(app->file);
       return false;
     }
 
-    // Concatenate buffer and new_content
-    furi_string_cat(buffer_task, buffer_rest);
-
-    // Get the final content to write to the file
-
     // Write the new content to the file
-    if (!storage_file_write(app->file, furi_string_get_cstr(buffer_task),
-                            furi_string_size(buffer_task))) {
+    if (!storage_file_write(app->file, furi_string_get_cstr(buffer_new_content),
+                            furi_string_size(buffer_new_content))) {
       FURI_LOG_E(TAG, "Failed to write new content to file");
       furi_string_free(buffer_task);
-      furi_string_free(buffer_rest);
+      furi_string_free(buffer_new_content);
       storage_file_close(app->file);
       return false;
     }
@@ -295,8 +291,8 @@ bool find_and_replace_task_in_csv(App *app, const Task *current_task) {
   }
 
   // Free the buffers
-  furi_string_free(buffer_rest);
   furi_string_free(buffer_task);
+  furi_string_free(buffer_new_content);
 
   FURI_LOG_I(TAG, "Task find and replace completed. Task found: %d",
              task_found);

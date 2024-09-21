@@ -28,5 +28,6 @@ void app_free(App *app) {
   tasks_free(app->tasks);
   current_task_free(app->current_task);
   furi_record_close(RECORD_STORAGE);
+  storage_file_free(app->file);
   free(app);
 }

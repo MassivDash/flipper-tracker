@@ -46,8 +46,6 @@ void storage_init(App *app) {
     if (!read_tasks_from_csv(app)) {
       FURI_LOG_E(TAG, "Failed to read tasks from CSV file");
     }
-
-    storage_file_close(app->file);
   } else {
     // File does not exist, create the file with one test entry
     FURI_LOG_I(TAG, "File does not exist, creating new file with test entry");
@@ -60,10 +58,5 @@ void storage_init(App *app) {
     if (!write_task_to_csv(app, &test_task2)) {
       FURI_LOG_E(TAG, "Failed to write test task to CSV file");
     }
-
-    storage_file_close(app->file);
   }
-
-  // Deallocate file
-  storage_file_free(app->file);
 }

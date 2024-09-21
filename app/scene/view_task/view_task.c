@@ -45,9 +45,8 @@ void submenu_callback_task_actions(void *context, uint32_t index) {
         app->current_task->completed ? "Unmark as done" : "Mark as done");
 
     // Update the task in the CSV file
-    // delete_task_from_csv(app, app->current_task->id);
+    // find_and_replace_task_in_csv(app, app->current_task);
 
-    // // Add the task to the CSV file
     // write_task_to_csv(app, app->current_task);
 
     break;

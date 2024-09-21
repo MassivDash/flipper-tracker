@@ -44,10 +44,14 @@ void submenu_callback_task_actions(void *context, uint32_t index) {
         app->submenu_task_actions, TaskAction_ToggleCompleted,
         app->current_task->completed ? "Unmark as done" : "Mark as done");
 
-    // Update the task in the CSV file
-    // find_and_replace_task_in_csv(app, app->current_task);
+    // Log the task completion status
 
-    // write_task_to_csv(app, app->current_task);
+    FURI_LOG_I(TAG, "Task %s marked as %s", app->current_task->name,
+               app->current_task->completed ? "done" : "not done");
+
+    // Update the task in the CSV file
+    find_and_replace_task_in_csv(app, app->current_task);
+    tasks_update(app, app->current_task);
 
     break;
   default:

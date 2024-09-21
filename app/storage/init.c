@@ -55,6 +55,9 @@ void storage_init(App *app) {
       FURI_LOG_E(TAG, "Failed to write test task to CSV file");
     }
 
+    FURI_LOG_I(
+        TAG, "2n entry File does not exist, creating new file with test entry");
+
     if (!write_task_to_csv(app, &test_task2)) {
       FURI_LOG_E(TAG, "Failed to write test task to CSV file");
     }

@@ -8,6 +8,8 @@
 
 void tasks_init(App *app);
 void tasks_add(App *app, const Task *task);
+void tasks_update(App *app, const Task *current_task);
+void tasks_remove(App *app, const char *task_id);
 void current_task_init(App *app);
 void current_task_free(Task *task);
 void tasks_free(Tasks *tasks);

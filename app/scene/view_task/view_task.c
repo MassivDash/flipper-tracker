@@ -1,5 +1,6 @@
 #include "../../app.h"
 #include "../../enums.h"
+#include "../../tasks/task.h"
 #include <furi.h>
 #include <furi_hal.h>
 #include <gui/modules/submenu.h>
@@ -34,6 +35,22 @@ void submenu_callback_task_actions(void *context, uint32_t index) {
     FURI_LOG_I(TAG, "Stats for task: %s", app->current_task->name);
     // Add your logic here
     break;
+  case TaskAction_ToggleCompleted:
+    // Handle "Toggle Completed" action
+    FURI_LOG_I(TAG, "Toggle completed for task: %s", app->current_task->name);
+    app->current_task->completed = !app->current_task->completed;
+    // Update the submenu to reflect the new state
+    submenu_change_item_label(
+        app->submenu_task_actions, TaskAction_ToggleCompleted,
+        app->current_task->completed ? "Unmark as done" : "Mark as done");
+
+    // Update the task in the CSV file
+    // delete_task_from_csv(app, app->current_task->id);
+
+    // // Add the task to the CSV file
+    // write_task_to_csv(app, app->current_task);
+
+    break;
   default:
     break;
   }
@@ -63,6 +80,17 @@ void scene_on_enter_task_actions(void *context) {
                    submenu_callback_task_actions, app);
   submenu_add_item(app->submenu_task_actions, "Stats", TaskAction_Stats,
                    submenu_callback_task_actions, app);
+
+  // Add the "Mark as done" or "Unmark as done" item based on the completed flag
+  if (task->completed) {
+    submenu_add_item(app->submenu_task_actions, "Unmark as done",
+                     TaskAction_ToggleCompleted, submenu_callback_task_actions,
+                     app);
+  } else {
+    submenu_add_item(app->submenu_task_actions, "Mark as done",
+                     TaskAction_ToggleCompleted, submenu_callback_task_actions,
+                     app);
+  }
 
   view_dispatcher_switch_to_view(app->view_dispatcher, AppView_TaskActions);
 }

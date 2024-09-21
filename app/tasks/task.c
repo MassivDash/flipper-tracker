@@ -1,6 +1,8 @@
 #include "../app.h"
 #include "../enums.h"
 #include <furi.h>
+#include <stdlib.h>
+#include <storage/storage.h>
 
 #define TAG "tracker_app"
 
@@ -51,11 +53,17 @@ void tasks_free(Tasks *tasks) {
 }
 
 bool write_task_to_csv(App *app, const Task *task) {
+  if (!storage_file_open(app->file, APP_DATA_PATH("data.csv"), FSAM_WRITE,
+                         FSOM_CREATE_ALWAYS)) {
+    FURI_LOG_E(TAG, "Failed to open file for writing");
+    return false;
+  }
+
   // Allocate a FuriString buffer
   FuriString *buffer = furi_string_alloc();
 
   // Format the task into the buffer
-  furi_string_printf(buffer, "%s,%s,%s,%.2f,%s,%s,%s,%d,%u,\n", task->id,
+  furi_string_printf(buffer, "%s,%s,%s,%.2f,%s,%s,%s,%d,%u\n", task->id,
                      task->name, task->description,
                      (double)task->price_per_hour, task->start_time,
                      task->end_time, task->last_start_time, task->completed,
@@ -66,11 +74,13 @@ bool write_task_to_csv(App *app, const Task *task) {
                           furi_string_size(buffer))) {
     FURI_LOG_E(TAG, "Failed to write task to file");
     furi_string_free(buffer);
+    storage_file_close(app->file);
     return false;
   }
 
   // Free the buffer
   furi_string_free(buffer);
+  storage_file_close(app->file);
   return true;
 }
 
@@ -155,6 +165,7 @@ bool delete_task_from_csv(App *app, const char *task_id) {
       FURI_LOG_E(TAG, "Failed to write new content to file");
       furi_string_free(buffer);
       furi_string_free(new_content);
+      storage_file_close(app->file);
       return false;
     }
 

@@ -52,11 +52,6 @@ void storage_init(App *app) {
     // File does not exist, create the file with one test entry
     FURI_LOG_I(TAG, "File does not exist, creating new file with test entry");
 
-    if (!storage_file_open(app->file, APP_DATA_PATH("data.csv"), FSAM_WRITE,
-                           FSOM_CREATE_ALWAYS)) {
-      FURI_LOG_E(TAG, "Failed to open file for writing");
-    }
-
     // Write the test task to the file
     if (!write_task_to_csv(app, &test_task)) {
       FURI_LOG_E(TAG, "Failed to write test task to CSV file");

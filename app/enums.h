@@ -42,6 +42,7 @@ typedef enum {
   TaskAction_Continue,
   TaskAction_Edit,
   TaskAction_Stats,
+  TaskAction_ToggleCompleted
 } TaskActionMenu;
 
 // Define the Task structure

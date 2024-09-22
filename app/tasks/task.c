@@ -1,9 +1,27 @@
 #include "../app.h"
+#include "../csv/csv.h"
 #include <furi.h>
+#include <furi_hal.h>
 #include <stdlib.h>
 #include <storage/storage.h>
 
 #define TAG "tracker_app"
+#define ID_LENGTH 6
+
+void generate_id(char *id, size_t length) {
+  const char charset[] =
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  size_t charset_size = sizeof(charset) - 1;
+
+  uint32_t random_value = furi_hal_random_get();
+
+  for (size_t i = 0; i < length; ++i) {
+    int key = random_value % charset_size;
+    id[i] = charset[key];
+    random_value /= charset_size;
+  }
+  id[length] = '\0'; // Null-terminate the string
+}
 
 void tasks_init(App *app) {
   app->tasks = malloc(sizeof(Tasks));
@@ -23,6 +41,14 @@ void current_task_init(App *app) {
   app->current_task->last_start_time[0] = '\0';
   app->current_task->completed = false;
   app->current_task->total_time_minutes = 0;
+  app->current_task->status = TaskStatus_Stopped;
+}
+
+void current_task_update(App *app, const Task *current_task) {
+  if (app->current_task == NULL) {
+    app->current_task = malloc(sizeof(Task));
+  }
+  *app->current_task = *current_task;
 }
 
 void current_task_free(Task *current_task) {
@@ -42,6 +68,59 @@ void tasks_add(App *app, const Task *task) {
     tasks->array = new_array;
   }
   tasks->array[tasks->size++] = *task;
+}
+
+void get_current_datetime(char *datetime_str, size_t size) {
+  DateTime datetime;
+  furi_hal_rtc_get_datetime(&datetime);
+  snprintf(datetime_str, size, "%04d-%02d-%02d %02d:%02d", datetime.year,
+           datetime.month, datetime.day, datetime.hour, datetime.minute);
+}
+
+void create_new_task(App *app) {
+  char id[ID_LENGTH + 1]; // 6 characters + 1 for the null terminator
+  generate_id(id, ID_LENGTH);
+
+  char nameId[50];
+  generate_id(nameId, ID_LENGTH);
+
+  // "New Task" with the random name
+  Task default_task = {0}; // Initialize all fields to zero
+  strncpy(default_task.id, id, ID_LENGTH + 1);
+  strncpy(default_task.name, nameId, 50);
+
+  // Copy the description into the array
+  strncpy(default_task.description, "Very flipppery important task",
+          sizeof(default_task.description) - 1);
+  default_task.description[sizeof(default_task.description) - 1] =
+      '\0'; // Ensure null-termination
+
+  // Copy the start_time, end_time, and last_start_time into the arrays
+
+  default_task.start_time[sizeof(default_task.start_time) - 1] =
+      '\0'; // Ensure null-termination
+
+  get_current_datetime(default_task.start_time,
+                       sizeof(default_task.start_time));
+
+  strncpy(default_task.end_time, "NULL", sizeof(default_task.end_time) - 1);
+  default_task.end_time[sizeof(default_task.end_time) - 1] =
+      '\0'; // Ensure null-termination
+
+  default_task.last_start_time[sizeof(default_task.last_start_time) - 1] =
+      '\0'; // Ensure null-termination
+
+  get_current_datetime(default_task.last_start_time,
+                       sizeof(default_task.last_start_time));
+
+  default_task.price_per_hour = 0;
+  default_task.completed = false;
+  default_task.total_time_minutes = 0;
+  default_task.status = TaskStatus_Stopped;
+
+  write_task_to_csv(app, &default_task);
+  tasks_add(app, &default_task);
+  current_task_update(app, &default_task);
 }
 
 void tasks_update(App *app, const Task *current_task) {
@@ -89,212 +168,4 @@ void tasks_free(Tasks *tasks) {
   tasks->array = NULL;
   tasks->size = 0;
   tasks->capacity = 0;
-}
-bool write_task_to_csv(App *app, const Task *task) {
-  if (!storage_file_open(app->file, APP_DATA_PATH("data.csv"), FSAM_WRITE,
-                         FSOM_OPEN_APPEND)) {
-    FURI_LOG_E(TAG, "Failed to open file for writing");
-    return false;
-  }
-
-  // Allocate a FuriString buffer
-  FuriString *buffer = furi_string_alloc();
-
-  // Format the task into the buffer
-  furi_string_printf(buffer, "%s,%s,%s,%.2f,%s,%s,%s,%d,%u\n", task->id,
-                     task->name, task->description,
-                     (double)task->price_per_hour, task->start_time,
-                     task->end_time, task->last_start_time, task->completed,
-                     task->total_time_minutes);
-
-  // Write the buffer to the file
-  if (!storage_file_write(app->file, furi_string_get_cstr(buffer),
-                          furi_string_size(buffer))) {
-    FURI_LOG_E(TAG, "Failed to write task to file");
-    furi_string_free(buffer);
-    storage_file_close(app->file);
-    return false;
-  }
-
-  // Free the buffer
-  furi_string_free(buffer);
-  storage_file_close(app->file);
-  return true;
-}
-
-static bool read_line_from_file(App *app, FuriString *str_result) {
-  furi_string_reset(str_result);
-  uint8_t buffer[1]; // Read one character at a time
-  bool result = false;
-
-  FURI_LOG_I(TAG, "starting to read the file");
-
-  while (true) {
-    size_t read_count = storage_file_read(app->file, buffer, sizeof(buffer));
-    if (read_count == 0) {
-      break; // End of file
-    }
-
-    if (buffer[0] == '\n') {
-      result = true;
-      break; // End of line
-    } else {
-      furi_string_push_back(str_result, buffer[0]);
-    }
-  }
-
-  // Ensure the string is null-terminated
-  furi_string_push_back(str_result, '\0');
-
-  FURI_LOG_I(TAG, "result: %s", furi_string_get_cstr(str_result));
-  return result;
-}
-
-bool read_tasks_from_csv(App *app) {
-  // Allocate a FuriString buffer
-  FuriString *buffer = furi_string_alloc();
-  // Ensure the file is open before reading
-  if (!storage_file_open(app->file, APP_DATA_PATH("data.csv"), FSAM_READ,
-                         FSOM_OPEN_EXISTING)) {
-    FURI_LOG_E(TAG, "Failed to open file");
-    furi_string_free(buffer);
-    return false;
-  }
-
-  furi_assert(app);
-  FURI_LOG_I(TAG, "read_tasks_from_csv");
-
-  while (read_line_from_file(app, buffer)) {
-    // Allocate a task
-    Task task = {0};
-
-    // Ensure the buffer is null-terminated
-    const char *buffer_str = furi_string_get_cstr(buffer);
-    FURI_LOG_I(TAG, "Buffer string: %s", buffer_str);
-
-    // Temporary string to hold price_per_hour
-    char price_per_hour_str[20] = {0};
-
-    sscanf(buffer_str,
-           "%49[^,],%49[^,],%99[^,],%19[^,],%19[^,],%19[^,],%19[^,],%d,%u",
-           task.id, task.name, task.description, price_per_hour_str,
-           task.start_time, task.end_time, task.last_start_time,
-           (int *)&task.completed, &task.total_time_minutes);
-
-    // Convert price_per_hour_str to float
-    task.price_per_hour = strtof(price_per_hour_str, NULL);
-
-    // LOG NAME FOR TESTING
-    FURI_LOG_I(TAG,
-               "Task details: ID=%s, Name=%s, Description=%s, "
-               "PricePerHour=%.2f, StartTime=%s, EndTime=%s, LastStartTime=%s, "
-               "Completed=%d, TotalTimeMinutes=%u",
-               task.id, task.name, task.description,
-               (double)task.price_per_hour, task.start_time, task.end_time,
-               task.last_start_time, task.completed, task.total_time_minutes);
-
-    // Add the task to the tasks
-    tasks_add(app, &task);
-  }
-
-  // Free the buffer
-  FURI_LOG_I(TAG, "closed file");
-  furi_string_free(buffer);
-  storage_file_close(app->file);
-  return true;
-}
-
-bool find_and_replace_task_in_csv(App *app, const Task *current_task) {
-  FURI_LOG_I(TAG, "Finding and replacing task with ID: %s", current_task->id);
-  furi_assert(app);
-
-  // Allocate a FuriString buffer for reading lines
-  FuriString *buffer_task = furi_string_alloc();
-  // Allocate a FuriString buffer for the new content
-  FuriString *buffer_new_content = furi_string_alloc();
-
-  bool task_found = false;
-
-  if (!storage_file_open(app->file, APP_DATA_PATH("data.csv"), FSAM_READ,
-                         FSOM_OPEN_EXISTING)) {
-    FURI_LOG_E(TAG, "Failed to open file for reading");
-    furi_string_free(buffer_task);
-    furi_string_free(buffer_new_content);
-    storage_file_close(app->file);
-    return false;
-  }
-
-  // Read each line and check if it matches the task_id
-  while (read_line_from_file(app, buffer_task)) {
-    Task task = {0};
-
-    // Ensure the buffer is null-terminated
-    const char *buffer_str = furi_string_get_cstr(buffer_task);
-    FURI_LOG_I(TAG, "Buffer string: %s", buffer_str);
-
-    // Temporary string to hold price_per_hour
-    char price_per_hour_str[20] = {0};
-
-    sscanf(buffer_str,
-           "%49[^,],%49[^,],%99[^,],%19[^,],%19[^,],%19[^,],%19[^,],%d,%u",
-           task.id, task.name, task.description, price_per_hour_str,
-           task.start_time, task.end_time, task.last_start_time,
-           (int *)&task.completed, &task.total_time_minutes);
-
-    FURI_LOG_I(TAG, "Read line with ID: %s", task.id);
-
-    if (strcmp(task.id, current_task->id) != 0) {
-      // If the current line does not match the task_id, append it to new
-      // content
-      furi_string_cat(buffer_new_content, buffer_str);
-      furi_string_cat(buffer_new_content, "\n");
-    } else {
-      // Replace the task with the current_task
-      furi_string_printf(
-          buffer_task, "%s,%s,%s,%.2f,%s,%s,%s,%d,%u\n", current_task->id,
-          current_task->name, current_task->description,
-          (double)current_task->price_per_hour, current_task->start_time,
-          current_task->end_time, current_task->last_start_time,
-          current_task->completed, current_task->total_time_minutes);
-      furi_string_cat(buffer_new_content, furi_string_get_cstr(buffer_task));
-      task_found = true;
-    }
-  }
-
-  // Close the file after reading
-  storage_file_close(app->file);
-
-  if (task_found) {
-    // Reopen the file for writing
-    if (!storage_file_open(app->file, APP_DATA_PATH("data.csv"), FSAM_WRITE,
-                           FSOM_CREATE_ALWAYS)) {
-      FURI_LOG_E(TAG, "Failed to open file for writing");
-      furi_string_free(buffer_task);
-      furi_string_free(buffer_new_content);
-      storage_file_close(app->file);
-      return false;
-    }
-
-    // Write the new content to the file
-    if (!storage_file_write(app->file, furi_string_get_cstr(buffer_new_content),
-                            furi_string_size(buffer_new_content))) {
-      FURI_LOG_E(TAG, "Failed to write new content to file");
-      furi_string_free(buffer_task);
-      furi_string_free(buffer_new_content);
-      storage_file_close(app->file);
-      return false;
-    }
-
-    // Close the file after writing
-    storage_file_close(app->file);
-  }
-
-  // Free the buffers
-  furi_string_free(buffer_task);
-  furi_string_free(buffer_new_content);
-
-  FURI_LOG_I(TAG, "Task find and replace completed. Task found: %d",
-             task_found);
-
-  return task_found;
 }

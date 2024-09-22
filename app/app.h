@@ -22,7 +22,6 @@ typedef struct {
   Tasks *tasks;
   Task *current_task;
   File *file;
-  VariableItemList *variable_item_list;
 } App;
 
 #endif // APP_H

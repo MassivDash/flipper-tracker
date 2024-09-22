@@ -1,5 +1,6 @@
 #include "../../app.h"
 #include "../../structs.h"
+#include "../../tasks/task.h"
 #include <furi.h>
 
 #define TAG "tracker_app"
@@ -61,7 +62,10 @@ bool scene_on_event_main_menu(void *context, SceneManagerEvent event) {
       consumed = true;
       break;
     case AppEvent_ShowCreateTask:
-      scene_manager_next_scene(app->scene_manager, CreateTask);
+
+      create_new_task(app);
+      scene_manager_next_scene(app->scene_manager, TaskActions);
+
       consumed = true;
       break;
     case AppEvent_ViewTasks:

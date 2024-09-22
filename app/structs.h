@@ -38,12 +38,19 @@ typedef enum {
   ViewTasks_Menu,
 } AppMenuSelection;
 
+/** Submenu for task view */
 typedef enum {
   TaskAction_Continue,
   TaskAction_Edit,
   TaskAction_Stats,
   TaskAction_ToggleCompleted
 } TaskActionMenu;
+
+/** Statues of entries */
+typedef enum {
+  TaskStatus_Running,
+  TaskStatus_Stopped,
+} TaskStatus;
 
 // Define the Task structure
 typedef struct {
@@ -56,6 +63,7 @@ typedef struct {
   char last_start_time[20];
   bool completed;
   unsigned int total_time_minutes;
+  TaskStatus status;
 } Task;
 
 typedef struct {

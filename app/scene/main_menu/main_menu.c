@@ -39,6 +39,25 @@ void scene_on_enter_main_menu(void *context) {
   if (app->tasks->array != NULL) {
     menu_add_item(app->menu, "Quick continue last task", NULL, QuickStart_Menu,
                   menu_callback_main_menu, app);
+
+    // Find the latest not completed task
+    Task *latest_task = NULL;
+    for (size_t i = 0; i < app->tasks->size; i++) {
+      Task *task = &app->tasks->array[i];
+      if (!task->completed) {
+        if (latest_task == NULL) {
+          latest_task = task;
+        } else if (task->last_start_time > latest_task->last_start_time) {
+          latest_task = task;
+        }
+      }
+    }
+
+    if (latest_task != NULL) {
+      app->current_task = latest_task;
+      menu_add_item(app->menu, "Continue last task", NULL, QuickStart_Menu,
+                    menu_callback_main_menu, app);
+    }
   }
 
   menu_add_item(app->menu, "Create a new task", NULL, CreateTask_Menu,
@@ -58,7 +77,7 @@ bool scene_on_event_main_menu(void *context, SceneManagerEvent event) {
   case SceneManagerEventTypeCustom:
     switch (event.event) {
     case AppEvent_ShowQuickStart:
-      scene_manager_next_scene(app->scene_manager, QuickStart);
+      scene_manager_next_scene(app->scene_manager, TaskActions);
       consumed = true;
       break;
     case AppEvent_ShowCreateTask:

@@ -23,6 +23,7 @@ void submenu_callback_task_actions(void *context, uint32_t index) {
   case TaskAction_Continue:
     // Handle "Continue" action
     FURI_LOG_I(TAG, "Continue task: %s", app->current_task->name);
+    scene_manager_next_scene(app->scene_manager, TaskContinue);
     // Add your logic here
     break;
   case TaskAction_Edit:
@@ -76,10 +77,16 @@ void scene_on_enter_task_actions(void *context) {
   // Set the header to the current task name
   Task *task = app->current_task;
   char header[256];
+
   snprintf(header, sizeof(header), "Task: %s", task->name);
   submenu_set_header(app->submenu_task_actions, header);
-  submenu_add_item(app->submenu_task_actions, "Continue", TaskAction_Continue,
-                   submenu_callback_task_actions, app);
+  if (task->status == TaskStatus_Running) {
+    submenu_add_item(app->submenu_task_actions, "Stop", TaskAction_Continue,
+                     submenu_callback_task_actions, app);
+  } else {
+    submenu_add_item(app->submenu_task_actions, "Start", TaskAction_Continue,
+                     submenu_callback_task_actions, app);
+  }
   submenu_add_item(app->submenu_task_actions, "Edit", TaskAction_Edit,
                    submenu_callback_task_actions, app);
   submenu_add_item(app->submenu_task_actions, "Stats", TaskAction_Stats,

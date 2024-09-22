@@ -169,3 +169,22 @@ void tasks_free(Tasks *tasks) {
   tasks->size = 0;
   tasks->capacity = 0;
 }
+
+TaskStatus string_to_task_status(const char *status_str) {
+  if (strcmp(status_str, "Running") == 0)
+    return TaskStatus_Running;
+  if (strcmp(status_str, "Stopped") == 0)
+    return TaskStatus_Stopped;
+  return TaskStatus_Stopped; // Default to Stopped if unknown
+}
+
+const char *task_status_to_string(TaskStatus status) {
+  switch (status) {
+  case TaskStatus_Running:
+    return "Running";
+  case TaskStatus_Stopped:
+    return "Stopped";
+  default:
+    return "Stopped";
+  }
+}

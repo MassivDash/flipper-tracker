@@ -16,4 +16,6 @@ void current_task_free(Task *task);
 void current_task_update(App *app, const Task *current_task);
 void tasks_free(Tasks *tasks);
 
+TaskStatus string_to_task_status(const char *status_str);
+const char *task_status_to_string(TaskStatus status);
 #endif // TASK_H

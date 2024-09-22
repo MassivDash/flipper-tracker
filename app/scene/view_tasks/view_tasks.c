@@ -1,5 +1,6 @@
 #include "../../app.h"
 #include "../../structs.h"
+#include "../../tasks/task.h"
 #include <furi.h>
 #include <furi_hal.h>
 #include <gui/modules/submenu.h>
@@ -43,7 +44,10 @@ void scene_on_enter_view_tasks(void *context) {
 
       if (!task->completed) {
         FURI_LOG_I(TAG, "task: %lu", (unsigned long)i);
-        submenu_add_item(app->submenu, task->name, i + 1,
+        char task_label[256];
+        snprintf(task_label, sizeof(task_label), "%s (%s)", task->name,
+                 task_status_to_string(task->status));
+        submenu_add_item(app->submenu, task_label, i + 1,
                          submenu_callback_view_tasks, app);
       }
     }

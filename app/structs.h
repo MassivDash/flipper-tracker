@@ -10,6 +10,7 @@ typedef enum {
   CreateTask,
   ViewTasks,
   TaskActions,
+  TaskContinue,
   ViewTaskDetails,
   Count
 } AppScene;
@@ -18,7 +19,8 @@ typedef enum {
   AppView_Menu,
   AppView_Popup,
   AppView_ViewTasks,
-  AppView_TaskActions
+  AppView_TaskActions,
+  AppView_TaskContinue,
 } AppView;
 
 /** all custom events */
@@ -27,6 +29,7 @@ typedef enum {
   AppEvent_ShowCreateTask,
   AppEvent_ViewTasks,
   AppEvent_TaskActions,
+  AppEvent_TaskContinue,
 } AppEvent;
 
 /* main menu scene */

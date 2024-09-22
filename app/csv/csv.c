@@ -6,25 +6,6 @@
 
 #define TAG "tracker_app"
 
-TaskStatus string_to_task_status(const char *status_str) {
-  if (strcmp(status_str, "Running") == 0)
-    return TaskStatus_Running;
-  if (strcmp(status_str, "Stopped") == 0)
-    return TaskStatus_Stopped;
-  return TaskStatus_Stopped; // Default to Stopped if unknown
-}
-
-const char *task_status_to_string(TaskStatus status) {
-  switch (status) {
-  case TaskStatus_Running:
-    return "Running";
-  case TaskStatus_Stopped:
-    return "Stopped";
-  default:
-    return "Stopped";
-  }
-}
-
 bool write_task_to_csv(App *app, const Task *task) {
   if (!storage_file_open(app->file, APP_DATA_PATH("data.csv"), FSAM_WRITE,
                          FSOM_OPEN_APPEND)) {
@@ -125,8 +106,6 @@ bool read_tasks_from_csv(App *app) {
 
     // Add the task to the tasks
     tasks_add(app, &task);
-
-
   }
 
   // Free the buffer

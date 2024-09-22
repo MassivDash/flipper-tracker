@@ -1,10 +1,12 @@
 
 #include "../app.h"
-#include "../structs.h"              // Has all the Id's / Enums
-#include "./view_tasks/view_tasks.h" // scenes
+#include "../structs.h" // Has all the Id's / Enums
+#include "./view_tasks/view_tasks.h"
+#include <gui/modules/dialog_ex.h>
 // scenes
 #include "./main_menu/main_menu.h"
 #include "./quick_start/quick_start.h"
+#include "./task_continue/task_continue.h"
 #include "./view_task/view_task.h"
 
 #define TAG "tracker_app"
@@ -14,22 +16,23 @@
 /** collection of all scene on_enter handlers - in the same order as their enum
  */
 void (*const scene_on_enter_handlers[])(void *) = {
-    scene_on_enter_main_menu, scene_on_enter_popup_one,
-    scene_on_enter_popup_two, scene_on_enter_view_tasks,
-    scene_on_enter_task_actions};
+    scene_on_enter_main_menu,    scene_on_enter_popup_one,
+    scene_on_enter_popup_two,    scene_on_enter_view_tasks,
+    scene_on_enter_task_actions, scene_on_enter_task_continue};
 
 /** collection of all scene on event handlers - in the same order as their enum
  */
 bool (*const scene_on_event_handlers[])(void *, SceneManagerEvent) = {
-    scene_on_event_main_menu, scene_on_event_popup_one,
-    scene_on_event_popup_two, scene_on_event_view_tasks,
-    scene_on_event_task_actions};
+    scene_on_event_main_menu,    scene_on_event_popup_one,
+    scene_on_event_popup_two,    scene_on_event_view_tasks,
+    scene_on_event_task_actions, scene_on_event_task_continue};
 
 /** collection of all scene on exit handlers - in the same order as their enum
  */
 void (*const scene_on_exit_handlers[])(void *) = {
-    scene_on_exit_main_menu, scene_on_exit_popup_one, scene_on_exit_popup_two,
-    scene_on_exit_view_tasks, scene_on_exit_task_actions};
+    scene_on_exit_main_menu,    scene_on_exit_popup_one,
+    scene_on_exit_popup_two,    scene_on_exit_view_tasks,
+    scene_on_exit_task_actions, scene_on_exit_task_continue};
 
 /** collection of all on_enter, on_event, on_exit handlers */
 const SceneManagerHandlers scene_event_handlers = {
@@ -71,6 +74,7 @@ void view_dispatcher_init(App *app) {
   app->popup = popup_alloc();
   app->submenu = submenu_alloc();
   app->submenu_task_actions = submenu_alloc();
+  app->dialog = dialog_ex_alloc();
 
   // assign callback that pass events from views to the scene manager
   FURI_LOG_D(TAG, "view_dispatcher_init setting callbacks");
@@ -96,4 +100,7 @@ void view_dispatcher_init(App *app) {
   FURI_LOG_D(TAG, "view_dispatcher_init adding view task actions");
   view_dispatcher_add_view(app->view_dispatcher, AppView_TaskActions,
                            submenu_get_view(app->submenu_task_actions));
+
+  view_dispatcher_add_view(app->view_dispatcher, AppView_TaskContinue,
+                           dialog_ex_get_view(app->dialog));
 }

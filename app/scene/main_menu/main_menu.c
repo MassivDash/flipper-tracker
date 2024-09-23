@@ -83,8 +83,9 @@ bool scene_on_event_main_menu(void *context, SceneManagerEvent event) {
       break;
     case AppEvent_ShowCreateTask:
 
-      create_new_task(app);
-      scene_manager_next_scene(app->scene_manager, TaskActions);
+      if (create_new_task(app)) {
+        scene_manager_next_scene(app->scene_manager, TaskActions);
+      }
 
       consumed = true;
       break;

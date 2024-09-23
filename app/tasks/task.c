@@ -75,7 +75,7 @@ void get_current_datetime(DateTime *datetime) {
   furi_hal_rtc_get_datetime(datetime);
 }
 
-void create_new_task(App *app) {
+bool create_new_task(App *app) {
   char id[ID_LENGTH + 1]; // 6 characters + 1 for the null terminator
   generate_id(id, ID_LENGTH);
 
@@ -107,6 +107,7 @@ void create_new_task(App *app) {
   write_task_to_csv(app, &default_task);
   tasks_add(app, &default_task);
   current_task_update(app, &default_task);
+  return true;
 }
 
 void tasks_update(App *app, const Task *current_task) {

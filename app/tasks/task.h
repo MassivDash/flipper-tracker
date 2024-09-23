@@ -7,7 +7,7 @@
 
 #include "../structs.h"
 
-void create_new_task(App *app);
+bool create_new_task(App *app);
 void tasks_init(App *app);
 void tasks_add(App *app, const Task *task);
 void tasks_update(App *app, const Task *current_task);

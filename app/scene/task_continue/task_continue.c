@@ -21,14 +21,10 @@ static void task_continue_scene_dialog_callback(DialogExResult result,
 static void task_continue_update(App *app) {
   DialogEx *dialog_ex = app->dialog;
 
-  char buffer_title[64];
   char buffer_text[256];
 
   bool is_task_running = app->current_task->status == TaskStatus_Running;
   if (is_task_running) {
-    snprintf(buffer_title, sizeof(buffer_title), "Stop task: %s",
-             app->current_task->name);
-
     // Calculate elapsed time
     DateTime current_time = {0};
     furi_hal_rtc_get_datetime(&current_time);
@@ -39,30 +35,25 @@ static void task_continue_update(App *app) {
 
     if (app->current_task->total_time_minutes > 0) {
       snprintf(buffer_text, sizeof(buffer_text),
-               "Current task: %ld min and %ld sec\n with total of: %u minutes",
-               (long)elapsed_minutes, (long)elapsed_remaining_seconds,
+               "%ld min %ld sec\ntotal of: %u min", (long)elapsed_minutes,
+               (long)elapsed_remaining_seconds,
                (unsigned int)(app->current_task->total_time_minutes +
                               elapsed_minutes));
     } else {
-      snprintf(buffer_text, sizeof(buffer_text),
-               "Current task: %ld minutes and %ld seconds",
+      snprintf(buffer_text, sizeof(buffer_text), "Stopped at %ld min %ld sec",
                (long)elapsed_minutes, (long)elapsed_remaining_seconds);
     }
 
     dialog_ex_set_center_button_text(dialog_ex, "Stop");
   } else {
-    snprintf(buffer_title, sizeof(buffer_title), "Start task: %s",
-             app->current_task->name);
-
-    snprintf(buffer_text, sizeof(buffer_text), "Task stopped at %d minutes",
+    snprintf(buffer_text, sizeof(buffer_text), "stopped at %d minutes",
              app->current_task->total_time_minutes);
 
     dialog_ex_set_center_button_text(dialog_ex, "Start");
   }
 
-  dialog_ex_set_icon(dialog_ex, 1, 5, &I_dolphinWait_59x54);
-  dialog_ex_set_header(dialog_ex, buffer_title, 50, 2, AlignCenter, AlignTop);
-  dialog_ex_set_text(dialog_ex, buffer_text, 64, 29, AlignCenter, AlignCenter);
+  dialog_ex_set_icon(dialog_ex, 1, 1, &I_dolphinWait_59x54);
+  dialog_ex_set_text(dialog_ex, buffer_text, 64, 20, AlignLeft, AlignCenter);
   dialog_ex_set_left_button_text(dialog_ex, "Exit");
   dialog_ex_set_result_callback(dialog_ex, task_continue_scene_dialog_callback);
   dialog_ex_set_context(dialog_ex, app);

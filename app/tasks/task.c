@@ -1,5 +1,7 @@
 #include "../app.h"
 #include "../csv/csv.h"
+#include "../datetime/datetime.h"
+#include <datetime/datetime.h> // Include the header for datetime_to_string
 #include <furi.h>
 #include <furi_hal.h>
 #include <stdlib.h>
@@ -73,8 +75,9 @@ void tasks_add(App *app, const Task *task) {
 void get_current_datetime(char *datetime_str, size_t size) {
   DateTime datetime;
   furi_hal_rtc_get_datetime(&datetime);
-  snprintf(datetime_str, size, "%04d-%02d-%02d %02d:%02d", datetime.year,
-           datetime.month, datetime.day, datetime.hour, datetime.minute);
+
+  // Convert the datetime to a string
+  datetime_to_string(datetime_str, size, &datetime);
 }
 
 void create_new_task(App *app) {

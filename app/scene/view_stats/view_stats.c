@@ -1,4 +1,5 @@
 #include "../../app.h"
+#include "../../datetime/datetime.h" // Include the datetime header
 #include <furi.h>
 #include <furi_hal.h>
 #include <gui/elements.h>
@@ -47,14 +48,24 @@ static void view_stats_draw_callback(Canvas *canvas, void *_model) {
   snprintf(total_time_minutes_str, sizeof(total_time_minutes_str), "%u",
            shared_task->total_time_minutes);
 
+  char start_time_str[20];
+  char end_time_str[20];
+  char last_start_time_str[20];
+  datetime_to_string(start_time_str, sizeof(start_time_str),
+                     &shared_task->start_time);
+  datetime_to_string(end_time_str, sizeof(end_time_str),
+                     &shared_task->end_time);
+  datetime_to_string(last_start_time_str, sizeof(last_start_time_str),
+                     &shared_task->last_start_time);
+
   const char *values[] = {
       shared_task->id,
       shared_task->name,
       shared_task->description,
       price_per_hour_str,
-      shared_task->start_time,
-      shared_task->end_time,
-      shared_task->last_start_time,
+      start_time_str,
+      end_time_str,
+      last_start_time_str,
       shared_task->completed ? "Yes" : "No",
       total_time_minutes_str,
       shared_task->status == TaskStatus_Running ? "Running" : "Stopped"};

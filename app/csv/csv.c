@@ -1,4 +1,5 @@
 #include "../app.h"
+#include "../datetime/datetime.h"
 #include "../tasks/task.h"
 #include <furi.h>
 #include <stdlib.h>
@@ -16,11 +17,20 @@ bool write_task_to_csv(App *app, const Task *task) {
   // Allocate a FuriString buffer
   FuriString *buffer = furi_string_alloc();
 
+  // Convert DateTime fields to ISO 8601 strings
+  char start_time_str[20], end_time_str[20], last_start_time_str[20];
+  datetime_to_string_iso8601(start_time_str, sizeof(start_time_str),
+                             &task->start_time);
+  datetime_to_string_iso8601(end_time_str, sizeof(end_time_str),
+                             &task->end_time);
+  datetime_to_string_iso8601(last_start_time_str, sizeof(last_start_time_str),
+                             &task->last_start_time);
+
   // Format the task into the buffer
   furi_string_printf(
       buffer, "%s,%s,%s,%.2f,%s,%s,%s,%d,%u,%s\n", task->id, task->name,
-      task->description, (double)task->price_per_hour, task->start_time,
-      task->end_time, task->last_start_time, task->completed,
+      task->description, (double)task->price_per_hour, start_time_str,
+      end_time_str, last_start_time_str, task->completed,
       task->total_time_minutes, task_status_to_string(task->status));
 
   // Write the buffer to the file
@@ -65,7 +75,6 @@ static bool read_line_from_file(App *app, FuriString *str_result) {
   FURI_LOG_I(TAG, "result: %s", furi_string_get_cstr(str_result));
   return result;
 }
-
 bool read_tasks_from_csv(App *app) {
   // Allocate a FuriString buffer
   FuriString *buffer = furi_string_alloc();
@@ -88,20 +97,25 @@ bool read_tasks_from_csv(App *app) {
     const char *buffer_str = furi_string_get_cstr(buffer);
     FURI_LOG_I(TAG, "Buffer string: %s", buffer_str);
 
-    // Temporary string to hold price_per_hour
+    // Temporary strings to hold datetime and other fields
     char price_per_hour_str[20] = {0};
+    char start_time_str[20] = {0};
+    char end_time_str[20] = {0};
+    char last_start_time_str[20] = {0};
     char status_str[20] = {0};
 
     sscanf(
         buffer_str,
         "%49[^,],%49[^,],%99[^,],%19[^,],%19[^,],%19[^,],%19[^,],%d,%u,%19[^,]",
         task.id, task.name, task.description, price_per_hour_str,
-        task.start_time, task.end_time, task.last_start_time,
+        start_time_str, end_time_str, last_start_time_str,
         (int *)&task.completed, &task.total_time_minutes, status_str);
 
-    // Convert price_per_hour_str to float
+    // Convert strings to appropriate types
     task.price_per_hour = strtof(price_per_hour_str, NULL);
-    // Convert status_str to TaskStatus
+    string_to_datetime_iso8601(start_time_str, &task.start_time);
+    string_to_datetime_iso8601(end_time_str, &task.end_time);
+    string_to_datetime_iso8601(last_start_time_str, &task.last_start_time);
     task.status = string_to_task_status(status_str);
 
     // Add the task to the tasks
@@ -109,8 +123,6 @@ bool read_tasks_from_csv(App *app) {
   }
 
   // Free the buffer
-  FURI_LOG_I(TAG, "closed file");
-
   furi_string_free(buffer);
   storage_file_close(app->file);
   return true;
@@ -144,15 +156,26 @@ bool find_and_replace_task_in_csv(App *app, const Task *current_task) {
     const char *buffer_str = furi_string_get_cstr(buffer_task);
     FURI_LOG_I(TAG, "Buffer string: %s", buffer_str);
 
-    // Temporary string to hold price_per_hour
+    // Temporary strings to hold datetime and other fields
     char price_per_hour_str[20] = {0};
+    char start_time_str[20] = {0};
+    char end_time_str[20] = {0};
+    char last_start_time_str[20] = {0};
     char status_str[20] = {0};
+
     sscanf(
         buffer_str,
         "%49[^,],%49[^,],%99[^,],%19[^,],%19[^,],%19[^,],%19[^,],%d,%u,%19[^,]",
         task.id, task.name, task.description, price_per_hour_str,
-        task.start_time, task.end_time, task.last_start_time,
+        start_time_str, end_time_str, last_start_time_str,
         (int *)&task.completed, &task.total_time_minutes, status_str);
+
+    // Convert strings to appropriate types
+    task.price_per_hour = strtof(price_per_hour_str, NULL);
+    string_to_datetime_iso8601(start_time_str, &task.start_time);
+    string_to_datetime_iso8601(end_time_str, &task.end_time);
+    string_to_datetime_iso8601(last_start_time_str, &task.last_start_time);
+    task.status = string_to_task_status(status_str);
 
     FURI_LOG_I(TAG, "Read line with ID: %s", task.id);
 
@@ -163,12 +186,21 @@ bool find_and_replace_task_in_csv(App *app, const Task *current_task) {
       furi_string_cat(buffer_new_content, "\n");
     } else {
       // Replace the task with the current_task
+      char start_time_str[20], end_time_str[20], last_start_time_str[20];
+      datetime_to_string_iso8601(start_time_str, sizeof(start_time_str),
+                                 &current_task->start_time);
+      datetime_to_string_iso8601(end_time_str, sizeof(end_time_str),
+                                 &current_task->end_time);
+      datetime_to_string_iso8601(last_start_time_str,
+                                 sizeof(last_start_time_str),
+                                 &current_task->last_start_time);
+
       furi_string_printf(
           buffer_task, "%s,%s,%s,%.2f,%s,%s,%s,%d,%u,%s\n", current_task->id,
           current_task->name, current_task->description,
-          (double)current_task->price_per_hour, current_task->start_time,
-          current_task->end_time, current_task->last_start_time,
-          current_task->completed, current_task->total_time_minutes,
+          (double)current_task->price_per_hour, start_time_str, end_time_str,
+          last_start_time_str, current_task->completed,
+          current_task->total_time_minutes,
           task_status_to_string(current_task->status));
       furi_string_cat(buffer_new_content, furi_string_get_cstr(buffer_task));
       task_found = true;

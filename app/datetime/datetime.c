@@ -6,36 +6,38 @@ void datetime_to_string(char *datetime_str, size_t size,
            datetime->month, datetime->day, datetime->hour, datetime->minute,
            datetime->second);
 }
-// Helper function to calculate the number of days in a month
-static int days_in_month(int year, int month) {
-  static const int days_per_month[] = {31, 28, 31, 30, 31, 30,
-                                       31, 31, 30, 31, 30, 31};
-  if (month == 2 && ((year % 4 == 0 && year % 100 != 0) || (year % 400 == 0))) {
-    return 29; // February in a leap year
-  }
-  return days_per_month[month - 1];
+
+void datetime_to_string_iso8601(char *buffer, size_t size,
+                                const DateTime *datetime) {
+  snprintf(buffer, size, "%04d-%02d-%02dT%02d:%02d:%02d", datetime->year,
+           datetime->month, datetime->day, datetime->hour, datetime->minute,
+           datetime->second);
 }
 
-// Helper function to convert DateTime to total minutes since epoch
-static int64_t datetime_to_total_minutes(const DateTime *datetime) {
-  int64_t total_minutes = 0;
-  // Calculate total days from year
-  for (int year = 1970; year < datetime->year; ++year) {
-    total_minutes += (datetime_is_leap_year(year) ? 366 : 365) * 24 * 60;
-  }
-  // Calculate total days from month
-  for (int month = 1; month < datetime->month; ++month) {
-    total_minutes += days_in_month(datetime->year, month) * 24 * 60;
-  }
-  // Add days, hours, and minutes
-  total_minutes += (datetime->day - 1) * 24 * 60;
-  total_minutes += datetime->hour * 60;
-  total_minutes += datetime->minute;
-  return total_minutes;
+// Parse ISO 8601 string to DateTime
+void string_to_datetime_iso8601(const char *str, DateTime *datetime) {
+  int year, month, day, hour, minute, second;
+  sscanf(str, "%04d-%02d-%02dT%02d:%02d:%02d", &year, &month, &day, &hour,
+         &minute, &second);
+  datetime->year = (uint16_t)year;
+  datetime->month = (uint16_t)month;
+  datetime->day = (uint16_t)day;
+  datetime->hour = (uint16_t)hour;
+  datetime->minute = (uint16_t)minute;
+  datetime->second = (uint16_t)second;
 }
 
+// Calculate the difference in minutes between two DateTimes
 int32_t calculate_time_difference_in_minutes(DateTime *start, DateTime *end) {
-  int64_t start_total_minutes = datetime_to_total_minutes(start);
-  int64_t end_total_minutes = datetime_to_total_minutes(end);
-  return (int32_t)(end_total_minutes - start_total_minutes);
+  // Convert start and end DateTime to UNIX timestamps
+  uint32_t start_timestamp = datetime_datetime_to_timestamp(start);
+  uint32_t end_timestamp = datetime_datetime_to_timestamp(end);
+
+  // Calculate the difference in seconds
+  int32_t difference_seconds = end_timestamp - start_timestamp;
+
+  // Convert the difference from seconds to minutes
+  int32_t difference_minutes = difference_seconds / 60;
+
+  return difference_minutes;
 }

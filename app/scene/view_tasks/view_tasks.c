@@ -33,15 +33,6 @@ void scene_on_enter_view_tasks(void *context) {
     for (size_t i = 0; i < app->tasks->size; i++) {
       Task *task = &app->tasks->array[i];
 
-      FURI_LOG_D(TAG,
-                 "Task details: ID: %s, Name: %s, Description: %s, Price per "
-                 "Hour: %.2f, Start Time: %s, End Time: %s, Last Start Time: "
-                 "%s, Completed: %d, Total Time (minutes): %u",
-                 task->id, task->name, task->description,
-                 (double)task->price_per_hour, task->start_time, task->end_time,
-                 task->last_start_time, task->completed,
-                 task->total_time_minutes);
-
       if (!task->completed) {
         FURI_LOG_I(TAG, "task: %lu", (unsigned long)i);
         char task_label[256];

@@ -79,21 +79,10 @@ bool scene_on_event_task_continue(void *context, SceneManagerEvent event) {
         // Get current date and time, update the end time
         DateTime datetime_end_time = {0};
         furi_hal_rtc_get_datetime(&datetime_end_time);
-        FuriString *tmp_string = furi_string_alloc();
-        locale_format_time(tmp_string, &datetime_end_time,
-                           locale_get_time_format(), false);
-        strncpy(app->current_task->end_time, furi_string_get_cstr(tmp_string),
-                sizeof(app->current_task->end_time) - 1);
-        furi_string_free(tmp_string);
-        app->current_task->end_time[sizeof(app->current_task->end_time) - 1] =
-            '\0'; // Ensure null-termination
+        app->current_task->end_time = datetime_end_time;
 
         // Calculate the time difference
-        DateTime datetime_start_time = {0};
-        sscanf(app->current_task->last_start_time,
-               "%04hu-%02hhu-%02hhu %02hhu:%02hhu", &datetime_start_time.year,
-               &datetime_start_time.month, &datetime_start_time.day,
-               &datetime_start_time.hour, &datetime_start_time.minute);
+        DateTime datetime_start_time = app->current_task->last_start_time;
 
         int32_t time_difference_minutes = calculate_time_difference_in_minutes(
             &datetime_start_time, &datetime_end_time);
@@ -109,16 +98,7 @@ bool scene_on_event_task_continue(void *context, SceneManagerEvent event) {
         // Get current date and time, update the last start time
         DateTime datetime_start_time = {0};
         furi_hal_rtc_get_datetime(&datetime_start_time);
-        FuriString *tmp_string = furi_string_alloc();
-        locale_format_time(tmp_string, &datetime_start_time,
-                           locale_get_time_format(), false);
-        strncpy(app->current_task->last_start_time,
-                furi_string_get_cstr(tmp_string),
-                sizeof(app->current_task->last_start_time) - 1);
-        furi_string_free(tmp_string);
-        app->current_task
-            ->last_start_time[sizeof(app->current_task->last_start_time) - 1] =
-            '\0'; // Ensure null-termination
+        app->current_task->last_start_time = datetime_start_time;
 
         // Update UI
         dialog_ex_set_center_button_text(dialog_ex, "Stop");

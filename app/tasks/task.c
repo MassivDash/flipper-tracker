@@ -1,6 +1,5 @@
 #include "../app.h"
 #include "../csv/csv.h"
-#include "../datetime/datetime.h"
 #include <datetime/datetime.h> // Include the header for datetime_to_string
 #include <furi.h>
 #include <furi_hal.h>
@@ -38,9 +37,9 @@ void current_task_init(App *app) {
   app->current_task->name[0] = '\0';
   app->current_task->description[0] = '\0';
   app->current_task->price_per_hour = 0.0;
-  app->current_task->start_time[0] = '\0';
-  app->current_task->end_time[0] = '\0';
-  app->current_task->last_start_time[0] = '\0';
+  app->current_task->start_time = (DateTime){0};
+  app->current_task->end_time = (DateTime){0};
+  app->current_task->last_start_time = (DateTime){0};
   app->current_task->completed = false;
   app->current_task->total_time_minutes = 0;
   app->current_task->status = TaskStatus_Stopped;
@@ -72,12 +71,8 @@ void tasks_add(App *app, const Task *task) {
   tasks->array[tasks->size++] = *task;
 }
 
-void get_current_datetime(char *datetime_str, size_t size) {
-  DateTime datetime;
-  furi_hal_rtc_get_datetime(&datetime);
-
-  // Convert the datetime to a string
-  datetime_to_string(datetime_str, size, &datetime);
+void get_current_datetime(DateTime *datetime) {
+  furi_hal_rtc_get_datetime(datetime);
 }
 
 void create_new_task(App *app) {
@@ -98,23 +93,11 @@ void create_new_task(App *app) {
   default_task.description[sizeof(default_task.description) - 1] =
       '\0'; // Ensure null-termination
 
-  // Copy the start_time, end_time, and last_start_time into the arrays
+  // Set the start_time, end_time, and last_start_time
+  get_current_datetime(&default_task.start_time);
+  get_current_datetime(&default_task.last_start_time);
 
-  default_task.start_time[sizeof(default_task.start_time) - 1] =
-      '\0'; // Ensure null-termination
-
-  get_current_datetime(default_task.start_time,
-                       sizeof(default_task.start_time));
-
-  strncpy(default_task.end_time, "NULL", sizeof(default_task.end_time) - 1);
-  default_task.end_time[sizeof(default_task.end_time) - 1] =
-      '\0'; // Ensure null-termination
-
-  default_task.last_start_time[sizeof(default_task.last_start_time) - 1] =
-      '\0'; // Ensure null-termination
-
-  get_current_datetime(default_task.last_start_time,
-                       sizeof(default_task.last_start_time));
+  default_task.end_time = (DateTime){0}; // Initialize end_time to zero
 
   default_task.price_per_hour = 0;
   default_task.completed = false;

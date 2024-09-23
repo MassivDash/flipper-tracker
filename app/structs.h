@@ -1,3 +1,4 @@
+#include <datetime/datetime.h>
 #include <stdbool.h>
 #include <stdlib.h>
 
@@ -62,9 +63,9 @@ typedef struct {
   char name[50];
   char description[100];
   float price_per_hour;
-  char start_time[20];
-  char end_time[20];
-  char last_start_time[20];
+  DateTime start_time;
+  DateTime end_time;
+  DateTime last_start_time;
   bool completed;
   unsigned int total_time_minutes;
   TaskStatus status;

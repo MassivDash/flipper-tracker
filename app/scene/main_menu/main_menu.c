@@ -1,6 +1,7 @@
 #include "../../app.h"
 #include "../../structs.h"
 #include "../../tasks/task.h"
+#include <datetime/datetime.h>
 #include <furi.h>
 
 #define TAG "tracker_app"
@@ -36,16 +37,19 @@ void scene_on_enter_main_menu(void *context) {
   // * these icons do not have a framerate (resulting in a division by zero)
 
   // Check if any tasks are in app->tasks loaded from the csv file
+  // Check if any tasks are in app->tasks loaded from the csv file
   if (app->tasks->array != NULL) {
     // Find the latest not completed task
     Task *latest_task = NULL;
+    uint32_t latest_task_timestamp = 0;
     for (size_t i = 0; i < app->tasks->size; i++) {
       Task *task = &app->tasks->array[i];
       if (!task->completed) {
-        if (latest_task == NULL) {
+        uint32_t task_timestamp =
+            datetime_datetime_to_timestamp(&task->last_start_time);
+        if (latest_task == NULL || task_timestamp > latest_task_timestamp) {
           latest_task = task;
-        } else if (task->last_start_time > latest_task->last_start_time) {
-          latest_task = task;
+          latest_task_timestamp = task_timestamp;
         }
       }
     }

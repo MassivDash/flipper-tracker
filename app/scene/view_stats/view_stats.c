@@ -6,7 +6,7 @@
 #include <gui/view_dispatcher.h>
 
 #define TAG "tracker_app"
-#define LIST_ITEMS 10U
+#define LIST_ITEMS 4U
 #define LIST_LINE_H 13U
 #define HEADER_H 12U
 #define MOVE_X_OFFSET 5U
@@ -35,16 +35,9 @@ static void view_stats_draw_callback(Canvas *canvas, void *_model) {
     return;
   }
 
-  const char *fields[] = {"ID",
-                          "Name",
-                          "Description",
-                          "Price per Hour",
-                          "Start Time",
-                          "End Time",
-                          "Last Start Time",
-                          "Completed",
-                          "Total Time Minutes",
-                          "Status"};
+  const char *fields[] = {"ID",         "Name",  "Description", "Price per h",
+                          "Start",      "End",   "Last Start",  "Completed",
+                          "Total Time", "Status"};
 
   char price_per_hour_str[16];
   snprintf(price_per_hour_str, sizeof(price_per_hour_str), "%.2f",
@@ -66,14 +59,14 @@ static void view_stats_draw_callback(Canvas *canvas, void *_model) {
       total_time_minutes_str,
       shared_task->status == TaskStatus_Running ? "Running" : "Stopped"};
 
-  for (size_t i = 0; i < LIST_ITEMS; i++) {
-    int32_t idx = i + model->list_offset;
-    if (idx >= (int32_t)LIST_ITEMS)
-      break;
+  const size_t btn_number = sizeof(fields) / sizeof(fields[0]);
+  const bool show_scrollbar = btn_number > LIST_ITEMS;
 
+  for (uint32_t i = 0; i < MIN(btn_number, LIST_ITEMS); i++) {
+    int32_t idx = CLAMP((uint32_t)(i + model->list_offset), btn_number, 0U);
     uint8_t x_offset = (model->current_idx == idx) ? MOVE_X_OFFSET : 0;
     uint8_t y_offset = HEADER_H + i * LIST_LINE_H;
-    uint8_t box_end_x = canvas_width(canvas) - 1;
+    uint8_t box_end_x = canvas_width(canvas) - (show_scrollbar ? 6 : 1);
 
     canvas_set_color(canvas, ColorBlack);
     if (model->current_idx == idx) {
@@ -86,17 +79,27 @@ static void view_stats_draw_callback(Canvas *canvas, void *_model) {
     canvas_draw_str_aligned(canvas, x_offset + 64, y_offset + 3, AlignLeft,
                             AlignTop, values[idx]);
   }
+
+  if (show_scrollbar) {
+    elements_scrollbar_pos(canvas, canvas_width(canvas) - 1, HEADER_H,
+                           canvas_height(canvas) - HEADER_H, model->list_offset,
+                           btn_number);
+  }
 }
 
 static void update_list_offset(ViewStatsModel *model) {
-  const int32_t bounds = LIST_ITEMS > 1 ? 2 : LIST_ITEMS;
+  const size_t btn_number = 10; // Total number of items
+  const int32_t bounds = btn_number > (LIST_ITEMS - 1) ? 2 : btn_number;
 
-  if (model->current_idx >= ((int32_t)LIST_ITEMS - 1)) {
+  if ((btn_number > (LIST_ITEMS - 1)) &&
+      (model->current_idx >= ((int32_t)btn_number - 1))) {
     model->list_offset = model->current_idx - (LIST_ITEMS - 1);
   } else if (model->list_offset < model->current_idx - bounds) {
-    model->list_offset = model->current_idx - (LIST_ITEMS - 2);
+    model->list_offset = CLAMP(model->current_idx - (int32_t)(LIST_ITEMS - 2),
+                               (int32_t)btn_number - bounds, 0);
   } else if (model->list_offset > model->current_idx - bounds) {
-    model->list_offset = model->current_idx - 1;
+    model->list_offset =
+        CLAMP(model->current_idx - 1, (int32_t)btn_number - bounds, 0);
   }
 }
 
@@ -111,14 +114,15 @@ static bool view_stats_input_callback(InputEvent *event, void *context) {
     with_view_model(
         view, ViewStatsModel * model,
         {
+          const size_t btn_number = 10; // Total number of items
           if (event->key == InputKeyUp) {
             if (model->current_idx <= 0) {
-              model->current_idx = LIST_ITEMS - 1;
+              model->current_idx = btn_number - 1;
             } else {
               model->current_idx--;
             }
           } else if (event->key == InputKeyDown) {
-            if (model->current_idx >= (int32_t)(LIST_ITEMS - 1)) {
+            if (model->current_idx >= (int32_t)(btn_number - 1)) {
               model->current_idx = 0;
             } else {
               model->current_idx++;
@@ -129,9 +133,6 @@ static bool view_stats_input_callback(InputEvent *event, void *context) {
         true);
     return true;
   } else if (event->key == InputKeyBack) {
-
-    FURI_LOG_I(TAG, "input back");
-
     scene_manager_search_and_switch_to_previous_scene(app->scene_manager,
                                                       TaskActions);
     return false; // Pass the back event through

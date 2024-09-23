@@ -57,6 +57,14 @@ void submenu_callback_task_actions(void *context, uint32_t index) {
     tasks_update(app, app->current_task);
 
     break;
+  case TaskAction_Delete:
+    // Handle "Delete" action
+    FURI_LOG_I(TAG, "Delete task: %s", app->current_task->name);
+    delete_task_from_csv(app, app->current_task->id);
+    tasks_remove(app, app->current_task->id);
+    scene_manager_search_and_switch_to_previous_scene(app->scene_manager,
+                                                      ViewTasks);
+    break;
   default:
     break;
   }
@@ -104,6 +112,9 @@ void scene_on_enter_task_actions(void *context) {
                      app);
   }
 
+  submenu_add_item(app->submenu_task_actions, "Delete !", TaskAction_Delete,
+                   submenu_callback_task_actions, app);
+
   view_dispatcher_switch_to_view(app->view_dispatcher, AppView_TaskActions);
 }
 
@@ -133,5 +144,6 @@ bool scene_on_event_task_actions(void *context, SceneManagerEvent event) {
 void scene_on_exit_task_actions(void *context) {
   FURI_LOG_T(TAG, "scene_on_exit_task_actions");
   App *app = context;
+  current_task_empty(app);
   submenu_reset(app->submenu_task_actions);
 }

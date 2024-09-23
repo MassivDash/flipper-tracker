@@ -41,6 +41,7 @@ typedef enum {
   QuickStart_Menu,
   CreateTask_Menu,
   ViewTasks_Menu,
+  NoTask_Menu,
 } AppMenuSelection;
 
 /** Submenu for task view */
@@ -48,7 +49,8 @@ typedef enum {
   TaskAction_Continue,
   TaskAction_Edit,
   TaskAction_Stats,
-  TaskAction_ToggleCompleted
+  TaskAction_ToggleCompleted,
+  TaskAction_Delete,
 } TaskActionMenu;
 
 /** Statues of entries */

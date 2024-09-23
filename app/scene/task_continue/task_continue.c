@@ -40,14 +40,19 @@ static void task_continue_update(App *app) {
                (unsigned int)(app->current_task->total_time_minutes +
                               elapsed_minutes));
     } else {
-      snprintf(buffer_text, sizeof(buffer_text), "Stopped at %ld min %ld sec",
+      snprintf(buffer_text, sizeof(buffer_text), "%ld min %ld sec",
                (long)elapsed_minutes, (long)elapsed_remaining_seconds);
     }
 
     dialog_ex_set_center_button_text(dialog_ex, "Stop");
   } else {
-    snprintf(buffer_text, sizeof(buffer_text), "stopped at %d minutes",
-             app->current_task->total_time_minutes);
+
+    if (app->current_task->total_time_minutes == 0) {
+      snprintf(buffer_text, sizeof(buffer_text), "Start the task !");
+    } else
+
+      snprintf(buffer_text, sizeof(buffer_text), "stopped at %d minutes",
+               app->current_task->total_time_minutes);
 
     dialog_ex_set_center_button_text(dialog_ex, "Start");
   }

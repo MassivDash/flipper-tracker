@@ -244,3 +244,102 @@ bool find_and_replace_task_in_csv(App *app, const Task *current_task) {
 
   return task_found;
 }
+
+bool delete_task_from_csv(App *app, const char *task_id) {
+  FURI_LOG_I(TAG, "Removing task with ID: %s", task_id);
+  furi_assert(app);
+
+  // Allocate a FuriString buffer for reading lines
+  FuriString *buffer_task = furi_string_alloc();
+  // Allocate a FuriString buffer for the new content
+  FuriString *buffer_new_content = furi_string_alloc();
+
+  bool task_found = false;
+
+  if (!storage_file_open(app->file, APP_DATA_PATH("data.csv"), FSAM_READ,
+                         FSOM_OPEN_EXISTING)) {
+    FURI_LOG_E(TAG, "Failed to open file for reading");
+    furi_string_free(buffer_task);
+    furi_string_free(buffer_new_content);
+    storage_file_close(app->file);
+    return false;
+  }
+
+  // Read each line and check if it matches the task_id
+  while (read_line_from_file(app, buffer_task)) {
+    Task task = {0};
+
+    // Ensure the buffer is null-terminated
+    const char *buffer_str = furi_string_get_cstr(buffer_task);
+    FURI_LOG_I(TAG, "Buffer string: %s", buffer_str);
+
+    // Temporary strings to hold datetime and other fields
+    char price_per_hour_str[20] = {0};
+    char start_time_str[20] = {0};
+    char end_time_str[20] = {0};
+    char last_start_time_str[20] = {0};
+    char status_str[20] = {0};
+
+    sscanf(
+        buffer_str,
+        "%49[^,],%49[^,],%99[^,],%19[^,],%19[^,],%19[^,],%19[^,],%d,%u,%19[^,]",
+        task.id, task.name, task.description, price_per_hour_str,
+        start_time_str, end_time_str, last_start_time_str,
+        (int *)&task.completed, &task.total_time_minutes, status_str);
+
+    // Convert strings to appropriate types
+    task.price_per_hour = strtof(price_per_hour_str, NULL);
+    string_to_datetime_iso8601(start_time_str, &task.start_time);
+    string_to_datetime_iso8601(end_time_str, &task.end_time);
+    string_to_datetime_iso8601(last_start_time_str, &task.last_start_time);
+    task.status = string_to_task_status(status_str);
+
+    FURI_LOG_I(TAG, "Read line with ID: %s", task.id);
+
+    if (strcmp(task.id, task_id) != 0) {
+      // If the current line does not match the task_id, append it to new
+      // content
+      furi_string_cat(buffer_new_content, buffer_str);
+      furi_string_cat(buffer_new_content, "\n");
+    } else {
+      // Mark the task as found
+      task_found = true;
+    }
+  }
+
+  // Close the file after reading
+  storage_file_close(app->file);
+
+  if (task_found) {
+    // Reopen the file for writing
+    if (!storage_file_open(app->file, APP_DATA_PATH("data.csv"), FSAM_WRITE,
+                           FSOM_CREATE_ALWAYS)) {
+      FURI_LOG_E(TAG, "Failed to open file for writing");
+      furi_string_free(buffer_task);
+      furi_string_free(buffer_new_content);
+      storage_file_close(app->file);
+      return false;
+    }
+
+    // Write the new content to the file
+    if (!storage_file_write(app->file, furi_string_get_cstr(buffer_new_content),
+                            furi_string_size(buffer_new_content))) {
+      FURI_LOG_E(TAG, "Failed to write new content to file");
+      furi_string_free(buffer_task);
+      furi_string_free(buffer_new_content);
+      storage_file_close(app->file);
+      return false;
+    }
+
+    // Close the file after writing
+    storage_file_close(app->file);
+  }
+
+  // Free the buffers
+  furi_string_free(buffer_task);
+  furi_string_free(buffer_new_content);
+
+  FURI_LOG_I(TAG, "Task removal completed. Task found: %d", task_found);
+
+  return task_found;
+}

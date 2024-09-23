@@ -70,6 +70,42 @@ void tasks_add(App *app, const Task *task) {
   }
   tasks->array[tasks->size++] = *task;
 }
+void task_remove(App *app, const char *task_id) {
+  Tasks *tasks = app->tasks;
+  bool task_found = false;
+
+  for (size_t i = 0; i < tasks->size; ++i) {
+    if (strcmp(tasks->array[i].id, task_id) == 0) {
+      task_found = true;
+      // Shift the remaining tasks to fill the gap
+      for (size_t j = i; j < tasks->size - 1; ++j) {
+        tasks->array[j] = tasks->array[j + 1];
+      }
+      tasks->size--;
+      FURI_LOG_I(TAG, "Task with ID %s removed.", task_id);
+      break;
+    }
+  }
+
+  if (!task_found) {
+    FURI_LOG_E(TAG, "Task with ID %s not found.", task_id);
+  }
+}
+
+void current_task_empty(App *app) {
+  if (app->current_task != NULL) {
+    app->current_task->id[0] = '\0';
+    app->current_task->name[0] = '\0';
+    app->current_task->description[0] = '\0';
+    app->current_task->price_per_hour = 0.0;
+    app->current_task->start_time = (DateTime){0};
+    app->current_task->end_time = (DateTime){0};
+    app->current_task->last_start_time = (DateTime){0};
+    app->current_task->completed = false;
+    app->current_task->total_time_minutes = 0;
+    app->current_task->status = TaskStatus_Stopped;
+  }
+}
 
 void get_current_datetime(DateTime *datetime) {
   furi_hal_rtc_get_datetime(datetime);

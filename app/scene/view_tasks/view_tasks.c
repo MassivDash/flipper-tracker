@@ -15,11 +15,20 @@ void submenu_callback_view_tasks(void *context, uint32_t index) {
   if (index > 0 && index <= app->tasks->size) {
     Task *task = &app->tasks->array[index - 1];
     FURI_LOG_I(TAG, "Switching to task view for task: %s", task->name);
-    app->current_task = task;
+    current_task_update(app, task);
     scene_manager_handle_custom_event(app->scene_manager, AppEvent_TaskActions);
   } else {
     FURI_LOG_W(TAG, "Invalid task index: %lu", (unsigned long)index);
   }
+}
+
+void submenu_callback_no_tasks(void *context, uint32_t index) {
+  FURI_LOG_T(TAG, "submenu_callback_no_tasks");
+  furi_assert(context);
+  furi_assert(index);
+  App *app = context;
+  scene_manager_search_and_switch_to_previous_scene(app->scene_manager,
+                                                    MainMenu);
 }
 
 void scene_on_enter_view_tasks(void *context) {
@@ -28,7 +37,7 @@ void scene_on_enter_view_tasks(void *context) {
   submenu_reset(app->submenu);
   submenu_set_header(app->submenu, "Tasks");
 
-  if (app->tasks->array != NULL) {
+  if (app->tasks->array != NULL && app->tasks->size > 0) {
     // First, add incomplete tasks
     for (size_t i = 0; i < app->tasks->size; i++) {
       Task *task = &app->tasks->array[i];
@@ -55,7 +64,8 @@ void scene_on_enter_view_tasks(void *context) {
       }
     }
   } else {
-    submenu_add_item(app->submenu, "No tasks", 0, NULL, app);
+    submenu_add_item(app->submenu, "No tasks", NoTask_Menu,
+                     submenu_callback_no_tasks, app);
   }
 
   view_dispatcher_switch_to_view(app->view_dispatcher, AppView_ViewTasks);

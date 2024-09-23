@@ -2,11 +2,13 @@
 #include "../../csv/csv.h"
 #include "../../datetime/datetime.h"
 #include "../../tasks/task.h"
+#include <core/timer.h>
 #include <furi.h>
 #include <furi_hal.h>
 #include <gui/modules/dialog_ex.h>
 #include <gui/view_dispatcher.h>
 #include <locale/locale.h>
+#include <trackerflipx_icons.h>
 
 #define TAG "tracker_app"
 
@@ -27,29 +29,50 @@ static void task_continue_update(App *app) {
     snprintf(buffer_title, sizeof(buffer_title), "Stop task: %s",
              app->current_task->name);
 
-    snprintf(buffer_text, sizeof(buffer_text),
-             "Your task has been running for %d minutes, press center to stop "
-             "tracking.",
-             app->current_task->total_time_minutes);
+    // Calculate elapsed time
+    DateTime current_time = {0};
+    furi_hal_rtc_get_datetime(&current_time);
+    int32_t elapsed_seconds = calculate_time_difference_in_seconds(
+        &app->current_task->last_start_time, &current_time);
+    int32_t elapsed_minutes = elapsed_seconds / 60;
+    int32_t elapsed_remaining_seconds = elapsed_seconds % 60;
+
+    if (app->current_task->total_time_minutes > 0) {
+      snprintf(buffer_text, sizeof(buffer_text),
+               "Current task: %ld min and %ld sec\n with total of: %u minutes",
+               (long)elapsed_minutes, (long)elapsed_remaining_seconds,
+               (unsigned int)(app->current_task->total_time_minutes +
+                              elapsed_minutes));
+    } else {
+      snprintf(buffer_text, sizeof(buffer_text),
+               "Current task: %ld minutes and %ld seconds",
+               (long)elapsed_minutes, (long)elapsed_remaining_seconds);
+    }
 
     dialog_ex_set_center_button_text(dialog_ex, "Stop");
   } else {
     snprintf(buffer_title, sizeof(buffer_title), "Start task: %s",
              app->current_task->name);
 
-    snprintf(buffer_text, sizeof(buffer_text),
-             "Your task has been running for %d minutes, press center to start "
-             "tracking.",
+    snprintf(buffer_text, sizeof(buffer_text), "Task stopped at %d minutes",
              app->current_task->total_time_minutes);
 
     dialog_ex_set_center_button_text(dialog_ex, "Start");
   }
 
-  dialog_ex_set_header(dialog_ex, buffer_title, 64, 0, AlignCenter, AlignTop);
+  dialog_ex_set_icon(dialog_ex, 1, 5, &I_dolphinWait_59x54);
+  dialog_ex_set_header(dialog_ex, buffer_title, 50, 2, AlignCenter, AlignTop);
   dialog_ex_set_text(dialog_ex, buffer_text, 64, 29, AlignCenter, AlignCenter);
   dialog_ex_set_left_button_text(dialog_ex, "Exit");
   dialog_ex_set_result_callback(dialog_ex, task_continue_scene_dialog_callback);
   dialog_ex_set_context(dialog_ex, app);
+}
+
+static void task_continue_timer_callback(void *context) {
+  App *app = context;
+  if (app->current_task->status == TaskStatus_Running) {
+    task_continue_update(app);
+  }
 }
 
 void scene_on_enter_task_continue(void *context) {
@@ -57,6 +80,11 @@ void scene_on_enter_task_continue(void *context) {
   App *app = context;
 
   task_continue_update(app);
+
+  // Initialize and start the timer to update every second
+  app->timer = furi_timer_alloc(task_continue_timer_callback,
+                                FuriTimerTypePeriodic, app);
+  furi_timer_start(app->timer, 1000);
 
   view_dispatcher_switch_to_view(app->view_dispatcher, AppView_TaskContinue);
 }
@@ -133,4 +161,8 @@ void scene_on_exit_task_continue(void *context) {
   FURI_LOG_T(TAG, "scene_on_exit_task_continue");
   App *app = context;
   dialog_ex_reset(app->dialog);
+
+  // Stop and free the timer
+  furi_timer_stop(app->timer);
+  furi_timer_free(app->timer);
 }

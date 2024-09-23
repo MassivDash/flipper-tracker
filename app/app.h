@@ -26,6 +26,7 @@ typedef struct {
   Task *current_task;
   File *file;
   DialogEx *dialog;
+  FuriTimer *timer;
 } App;
 
 #endif // APP_H

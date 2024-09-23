@@ -41,3 +41,15 @@ int32_t calculate_time_difference_in_minutes(DateTime *start, DateTime *end) {
 
   return difference_minutes;
 }
+
+// Calculate the difference in seconds between two DateTimes
+int64_t calculate_time_difference_in_seconds(DateTime *start, DateTime *end) {
+  // Convert start and end DateTime to UNIX timestamps in seconds
+  uint64_t start_timestamp_s = datetime_datetime_to_timestamp(start);
+  uint64_t end_timestamp_s = datetime_datetime_to_timestamp(end);
+
+  // Calculate the difference in seconds
+  int64_t difference_seconds = end_timestamp_s - start_timestamp_s;
+
+  return difference_seconds;
+}

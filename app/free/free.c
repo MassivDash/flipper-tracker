@@ -21,8 +21,11 @@ void app_free(App *app) {
   view_dispatcher_remove_view(app->view_dispatcher, AppView_ViewTasks);
   view_dispatcher_remove_view(app->view_dispatcher, AppView_TaskActions);
   view_dispatcher_remove_view(app->view_dispatcher, AppView_TaskContinue);
+  view_dispatcher_remove_view(app->view_dispatcher, AppView_ViewStats);
   view_dispatcher_free(app->view_dispatcher);
   menu_free(app->menu);
+  view_free(app->view);
+  view_free(app->view);
   popup_free(app->popup);
   submenu_free(app->submenu);
   submenu_free(app->submenu_task_actions);

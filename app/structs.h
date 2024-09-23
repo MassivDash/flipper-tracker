@@ -11,7 +11,7 @@ typedef enum {
   ViewTasks,
   TaskActions,
   TaskContinue,
-  ViewTaskDetails,
+  ViewStats,
   Count
 } AppScene;
 
@@ -21,6 +21,7 @@ typedef enum {
   AppView_ViewTasks,
   AppView_TaskActions,
   AppView_TaskContinue,
+  AppView_ViewStats,
 } AppView;
 
 /** all custom events */

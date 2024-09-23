@@ -37,9 +37,6 @@ void scene_on_enter_main_menu(void *context) {
 
   // Check if any tasks are in app->tasks loaded from the csv file
   if (app->tasks->array != NULL) {
-    menu_add_item(app->menu, "Quick continue last task", NULL, QuickStart_Menu,
-                  menu_callback_main_menu, app);
-
     // Find the latest not completed task
     Task *latest_task = NULL;
     for (size_t i = 0; i < app->tasks->size; i++) {

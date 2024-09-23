@@ -2,6 +2,7 @@
 #include <gui/modules/menu.h>
 #include <gui/modules/popup.h>
 #include <gui/modules/submenu.h>
+#include <gui/view.h>
 // #include <gui/modules/variable_item_list.h>
 #include <gui/scene_manager.h>
 #include <gui/view_dispatcher.h>
@@ -19,6 +20,7 @@ typedef struct {
   Menu *menu;
   Submenu *submenu;
   Submenu *submenu_task_actions;
+  View *view;
   Popup *popup;
   Tasks *tasks;
   Task *current_task;

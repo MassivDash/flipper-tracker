@@ -97,5 +97,6 @@ bool scene_on_event_view_tasks(void *context, SceneManagerEvent event) {
 void scene_on_exit_view_tasks(void *context) {
   FURI_LOG_T(TAG, "scene_on_exit_view_task");
   App *app = context;
+  current_task_empty(app);
   submenu_reset(app->submenu);
 }

@@ -144,6 +144,5 @@ bool scene_on_event_task_actions(void *context, SceneManagerEvent event) {
 void scene_on_exit_task_actions(void *context) {
   FURI_LOG_T(TAG, "scene_on_exit_task_actions");
   App *app = context;
-  current_task_empty(app);
   submenu_reset(app->submenu_task_actions);
 }

@@ -7,22 +7,27 @@
 
 typedef enum {
   MainMenu,
-  QuickStart,
-  CreateTask,
   ViewTasks,
   TaskActions,
   TaskContinue,
   ViewStats,
+  EditTask,
+  TaskNameInput,
+  TaskDescriptionInput,
+  PriceInput,
   Count
 } AppScene;
 
 typedef enum {
   AppView_Menu,
-  AppView_Popup,
   AppView_ViewTasks,
   AppView_TaskActions,
   AppView_TaskContinue,
   AppView_ViewStats,
+  AppView_EditTask,
+  AppView_TaskNameInput,
+  AppView_TaskDescriptionInput,
+  AppView_NumberInput,
 } AppView;
 
 /** all custom events */
@@ -31,7 +36,7 @@ typedef enum {
   AppEvent_ShowCreateTask,
   AppEvent_ViewTasks,
   AppEvent_TaskActions,
-  AppEvent_TaskContinue,
+  AppEvent_TaskContinue
 } AppEvent;
 
 /* main menu scene */
@@ -41,7 +46,7 @@ typedef enum {
   QuickStart_Menu,
   CreateTask_Menu,
   ViewTasks_Menu,
-  NoTask_Menu,
+  NoTask_Menu
 } AppMenuSelection;
 
 /** Submenu for task view */

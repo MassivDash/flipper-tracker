@@ -17,18 +17,25 @@ void app_free(App *app) {
   FURI_LOG_T(TAG, "free");
   scene_manager_free(app->scene_manager);
   view_dispatcher_remove_view(app->view_dispatcher, AppView_Menu);
-  view_dispatcher_remove_view(app->view_dispatcher, AppView_Popup);
   view_dispatcher_remove_view(app->view_dispatcher, AppView_ViewTasks);
   view_dispatcher_remove_view(app->view_dispatcher, AppView_TaskActions);
   view_dispatcher_remove_view(app->view_dispatcher, AppView_TaskContinue);
   view_dispatcher_remove_view(app->view_dispatcher, AppView_ViewStats);
+  view_dispatcher_remove_view(app->view_dispatcher, AppView_EditTask);
+  view_dispatcher_remove_view(app->view_dispatcher, AppView_TaskNameInput);
+  view_dispatcher_remove_view(app->view_dispatcher, AppView_NumberInput);
+  view_dispatcher_remove_view(app->view_dispatcher,
+                              AppView_TaskDescriptionInput);
+
   view_dispatcher_free(app->view_dispatcher);
   menu_free(app->menu);
   view_free(app->view);
   view_free(app->view);
-  popup_free(app->popup);
   submenu_free(app->submenu);
   submenu_free(app->submenu_task_actions);
+  number_input_free(app->number_input);
+  text_input_free(app->text_input);
+  variable_item_list_free(app->variable_item_list);
   dialog_ex_free(app->dialog);
   tasks_free(app->tasks);
   current_task_free(app->current_task);

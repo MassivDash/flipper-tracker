@@ -33,8 +33,7 @@ void submenu_callback_task_actions(void *context, uint32_t index) {
   case TaskAction_Edit:
     // Handle "Edit" action
     FURI_LOG_I(TAG, "Edit task: %s", app->current_task->name);
-    scene_manager_set_scene_state(app->scene_manager, AppView_Popup, 0);
-    scene_manager_next_scene(app->scene_manager, AppView_Popup);
+    scene_manager_next_scene(app->scene_manager, EditTask);
     break;
   case TaskAction_Stats:
     // Handle "Stats" action

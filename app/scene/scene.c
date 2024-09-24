@@ -5,8 +5,8 @@
 #include <gui/modules/dialog_ex.h>
 #include <gui/view.h>
 // scenes
+#include "./edit_task/edit_task.h"
 #include "./main_menu/main_menu.h"
-#include "./quick_start/quick_start.h"
 #include "./task_continue/task_continue.h"
 #include "./view_stats/view_stats.h"
 #include "./view_task/view_task.h"
@@ -18,26 +18,23 @@
 /** collection of all scene on_enter handlers - in the same order as their enum
  */
 void (*const scene_on_enter_handlers[])(void *) = {
-    scene_on_enter_main_menu,    scene_on_enter_popup_one,
-    scene_on_enter_popup_two,    scene_on_enter_view_tasks,
+    scene_on_enter_main_menu,    scene_on_enter_view_tasks,
     scene_on_enter_task_actions, scene_on_enter_task_continue,
-    scene_on_enter_view_stats};
+    scene_on_enter_view_stats,   scene_on_enter_edit_task};
 
 /** collection of all scene on event handlers - in the same order as their enum
  */
 bool (*const scene_on_event_handlers[])(void *, SceneManagerEvent) = {
-    scene_on_event_main_menu,    scene_on_event_popup_one,
-    scene_on_event_popup_two,    scene_on_event_view_tasks,
+    scene_on_event_main_menu,    scene_on_event_view_tasks,
     scene_on_event_task_actions, scene_on_event_task_continue,
-    scene_on_event_view_stats};
+    scene_on_event_view_stats,   scene_on_event_edit_task};
 
 /** collection of all scene on exit handlers - in the same order as their enum
  */
 void (*const scene_on_exit_handlers[])(void *) = {
-    scene_on_exit_main_menu,    scene_on_exit_popup_one,
-    scene_on_exit_popup_two,    scene_on_exit_view_tasks,
+    scene_on_exit_main_menu,    scene_on_exit_view_tasks,
     scene_on_exit_task_actions, scene_on_exit_task_continue,
-    scene_on_exit_view_stats};
+    scene_on_exit_view_stats,   scene_on_exit_edit_task};
 
 /** collection of all on_enter, on_event, on_exit handlers */
 const SceneManagerHandlers scene_event_handlers = {
@@ -76,8 +73,10 @@ void view_dispatcher_init(App *app) {
   // allocate each view
   FURI_LOG_D(TAG, "view_dispatcher_init allocating views");
   app->menu = menu_alloc();
-  app->popup = popup_alloc();
   app->submenu = submenu_alloc();
+  app->number_input = number_input_alloc();
+  app->text_input = text_input_alloc();
+  app->variable_item_list = variable_item_list_alloc();
   app->submenu_task_actions = submenu_alloc();
   app->dialog = dialog_ex_alloc();
   app->view = view_alloc();
@@ -90,25 +89,39 @@ void view_dispatcher_init(App *app) {
   view_dispatcher_set_navigation_event_callback(
       app->view_dispatcher, scene_manager_navigation_event_callback);
 
+  // MAIN MENU
   // add views to the dispatcher, indexed by their enum value
   FURI_LOG_D(TAG, "view_dispatcher_init adding view menu");
   view_dispatcher_add_view(app->view_dispatcher, AppView_Menu,
                            menu_get_view(app->menu));
 
-  FURI_LOG_D(TAG, "view_dispatcher_init adding view popup");
-  view_dispatcher_add_view(app->view_dispatcher, AppView_Popup,
-                           popup_get_view(app->popup));
-
+  // VIEW TASKS
   FURI_LOG_D(TAG, "view_dispatcher_init adding view submenu");
   view_dispatcher_add_view(app->view_dispatcher, AppView_ViewTasks,
                            submenu_get_view(app->submenu));
 
+  // TASK ACTIONS
   FURI_LOG_D(TAG, "view_dispatcher_init adding view task actions");
   view_dispatcher_add_view(app->view_dispatcher, AppView_TaskActions,
                            submenu_get_view(app->submenu_task_actions));
 
+  // TASK CONTINUE
+  FURI_LOG_D(TAG, "view_dispatcher_init adding view task continue");
   view_dispatcher_add_view(app->view_dispatcher, AppView_TaskContinue,
                            dialog_ex_get_view(app->dialog));
 
+  // EDIT MENU
+  FURI_LOG_D(TAG, "view_dispatcher_init adding view edit menu");
   view_dispatcher_add_view(app->view_dispatcher, AppView_ViewStats, app->view);
+
+  view_dispatcher_add_view(
+      app->view_dispatcher, AppView_EditTask,
+      variable_item_list_get_view(app->variable_item_list));
+
+  view_dispatcher_add_view(app->view_dispatcher, AppView_TaskNameInput,
+                           app->view);
+  view_dispatcher_add_view(app->view_dispatcher, AppView_TaskDescriptionInput,
+                           app->view);
+  view_dispatcher_add_view(app->view_dispatcher, AppView_NumberInput,
+                           app->view);
 }

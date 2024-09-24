@@ -50,9 +50,9 @@ static void task_continue_update(App *app) {
     if (app->current_task->completed) {
       format_time_string(total_time_formatted, sizeof(total_time_formatted),
                          app->current_task->total_time_minutes);
-      snprintf(buffer_text, sizeof(buffer_text), "Completed at %s",
+      snprintf(buffer_text, sizeof(buffer_text), "\n\n\n\nTotal at %s",
                total_time_formatted);
-      dialog_ex_set_icon(dialog_ex, -10, 1, &I_DolphinDone_80x58);
+      dialog_ex_set_icon(dialog_ex, -40, 1, &I_dolphinMafia_119x62);
     } else {
       if (app->current_task->total_time_minutes == 0) {
         snprintf(buffer_text, sizeof(buffer_text), "Start the task !");
@@ -62,7 +62,7 @@ static void task_continue_update(App *app) {
                            app->current_task->total_time_minutes);
         snprintf(buffer_text, sizeof(buffer_text), "Stopped at %s",
                  total_time_formatted);
-        dialog_ex_set_icon(dialog_ex, 1, 1, &I_DolphinDone_80x58);
+        dialog_ex_set_icon(dialog_ex, -20, 1, &I_DolphinDone_80x58);
       }
       dialog_ex_set_center_button_text(dialog_ex, "Start");
     }

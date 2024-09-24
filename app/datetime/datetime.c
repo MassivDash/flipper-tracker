@@ -53,3 +53,19 @@ int64_t calculate_time_difference_in_seconds(DateTime *start, DateTime *end) {
 
   return difference_seconds;
 }
+
+void format_time_string(char *buffer, size_t size, int32_t total_minutes) {
+  int32_t days = total_minutes / (24 * 60);
+  total_minutes %= (24 * 60);
+  int32_t hours = total_minutes / 60;
+  int32_t minutes = total_minutes % 60;
+
+  if (days > 0) {
+    snprintf(buffer, size, "%ld day%s %ldh %ldmin", (long)days,
+             (days > 1) ? "s" : "", (long)hours, (long)minutes);
+  } else if (hours > 0) {
+    snprintf(buffer, size, "%ldh %ldmin", (long)hours, (long)minutes);
+  } else {
+    snprintf(buffer, size, "%ldmin", (long)minutes);
+  }
+}

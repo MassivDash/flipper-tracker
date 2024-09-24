@@ -17,7 +17,6 @@ static void task_continue_scene_dialog_callback(DialogExResult result,
   App *app = context;
   view_dispatcher_send_custom_event(app->view_dispatcher, result);
 }
-
 static void task_continue_update(App *app) {
   DialogEx *dialog_ex = app->dialog;
 
@@ -34,30 +33,38 @@ static void task_continue_update(App *app) {
     int32_t elapsed_remaining_seconds = elapsed_seconds % 60;
 
     if (app->current_task->total_time_minutes > 0) {
+      char total_time_formatted[64];
+      format_time_string(total_time_formatted, sizeof(total_time_formatted),
+                         app->current_task->total_time_minutes +
+                             elapsed_minutes);
       snprintf(buffer_text, sizeof(buffer_text),
-               "%ld min %ld sec\ntotal of: %u min", (long)elapsed_minutes,
-               (long)elapsed_remaining_seconds,
-               (unsigned int)(app->current_task->total_time_minutes +
-                              elapsed_minutes));
+               "%ld min %ld sec\ntotal of: %s", (long)elapsed_minutes,
+               (long)elapsed_remaining_seconds, total_time_formatted);
+
+      dialog_ex_set_icon(dialog_ex, 1, 1, &I_dolphinWait_59x54);
     } else {
       snprintf(buffer_text, sizeof(buffer_text), "%ld min %ld sec",
                (long)elapsed_minutes, (long)elapsed_remaining_seconds);
+      dialog_ex_set_icon(dialog_ex, 1, 1, &I_dolphinWait_59x54);
     }
 
     dialog_ex_set_center_button_text(dialog_ex, "Stop");
   } else {
-
     if (app->current_task->total_time_minutes == 0) {
       snprintf(buffer_text, sizeof(buffer_text), "Start the task !");
-    } else
-
-      snprintf(buffer_text, sizeof(buffer_text), "stopped at %d minutes",
-               app->current_task->total_time_minutes);
+      dialog_ex_set_icon(dialog_ex, 1, 1, &I_DolphinReadingSuccess_59x63);
+    } else {
+      char total_time_formatted[64];
+      format_time_string(total_time_formatted, sizeof(total_time_formatted),
+                         app->current_task->total_time_minutes);
+      dialog_ex_set_icon(dialog_ex, 1, 1, &I_DolphinDone_80x58);
+      snprintf(buffer_text, sizeof(buffer_text), "stopped at %s",
+               total_time_formatted);
+    }
 
     dialog_ex_set_center_button_text(dialog_ex, "Start");
   }
 
-  dialog_ex_set_icon(dialog_ex, 1, 1, &I_dolphinWait_59x54);
   dialog_ex_set_text(dialog_ex, buffer_text, 64, 20, AlignLeft, AlignCenter);
   dialog_ex_set_left_button_text(dialog_ex, "Exit");
   dialog_ex_set_result_callback(dialog_ex, task_continue_scene_dialog_callback);

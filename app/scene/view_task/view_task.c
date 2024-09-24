@@ -8,7 +8,7 @@
 #include <furi_hal.h>
 #include <gui/modules/submenu.h>
 
-#define TAG "tracker_app"
+#define TAG "tracker_app_view_task"
 
 void submenu_callback_task_actions(void *context, uint32_t index) {
   FURI_LOG_T(TAG, "submenu_callback_task_actions");
@@ -26,19 +26,17 @@ void submenu_callback_task_actions(void *context, uint32_t index) {
   switch (index) {
   case TaskAction_Continue:
     // Handle "Continue" action
-    FURI_LOG_I(TAG, "Continue task: %s", app->current_task->name);
-    scene_manager_next_scene(app->scene_manager, TaskContinue);
+    scene_manager_handle_custom_event(app->scene_manager,
+                                      AppEvent_TaskContinue);
     // Add your logic here
     break;
   case TaskAction_Edit:
     // Handle "Edit" action
-    FURI_LOG_I(TAG, "Edit task: %s", app->current_task->name);
-    scene_manager_next_scene(app->scene_manager, EditTask);
+    scene_manager_handle_custom_event(app->scene_manager, AppEvent_EditTask);
     break;
   case TaskAction_Stats:
     // Handle "Stats" action
-    FURI_LOG_I(TAG, "Stats for task: %s", app->current_task->name);
-    scene_manager_next_scene(app->scene_manager, ViewStats);
+    scene_manager_handle_custom_event(app->scene_manager, AppEvent_ViewStats);
     // Add your logic here
     break;
   case TaskAction_ToggleCompleted:
@@ -46,7 +44,6 @@ void submenu_callback_task_actions(void *context, uint32_t index) {
     furi_hal_rtc_get_datetime(&current_time);
 
     // Handle "Toggle Completed" action
-    FURI_LOG_I(TAG, "Toggle completed for task: %s", app->current_task->name);
     app->current_task->completed = !app->current_task->completed;
 
     if (app->current_task->status == TaskStatus_Running) {
@@ -69,8 +66,9 @@ void submenu_callback_task_actions(void *context, uint32_t index) {
                app->current_task->completed ? "done" : "not done");
 
     // Update the task in the CSV file
-    find_and_replace_task_in_csv(app, app->current_task);
-    tasks_update(app, app->current_task);
+    if (tasks_update(app, app->current_task)) {
+      find_and_replace_task_in_csv(app, app->current_task);
+    }
 
     break;
   case TaskAction_Delete:
@@ -89,7 +87,6 @@ void submenu_callback_task_actions(void *context, uint32_t index) {
 void scene_on_enter_task_actions(void *context) {
   FURI_LOG_T(TAG, "scene_on_enter_task_actions");
   App *app = context;
-  furi_assert(app);
 
   // Ensure app and its members are properly initialized
   if (!app || !app->current_task) {
@@ -97,11 +94,20 @@ void scene_on_enter_task_actions(void *context) {
     return;
   }
 
+  for (size_t i = 0; i < app->tasks->size; i++) {
+    Task task = app->tasks->array[i];
+
+    FURI_LOG_T(TAG, "Task %lu: Name: %s, Status: %s, Completed: %s",
+               (unsigned long)i, task.name, task_status_to_string(task.status),
+               task.completed ? "Yes" : "No");
+    break;
+  }
+
   submenu_reset(app->submenu_task_actions);
 
   // Set the header to the current task name
   Task *task = app->current_task;
-  char header[256];
+  char header[128];
 
   snprintf(header, sizeof(header), "Task: %s", task->name);
   submenu_set_header(app->submenu_task_actions, header);
@@ -137,13 +143,30 @@ void scene_on_enter_task_actions(void *context) {
 bool scene_on_event_task_actions(void *context, SceneManagerEvent event) {
   FURI_LOG_T(TAG, "scene_on_event_task_actions");
   App *app = context;
-  furi_assert(app);
-
   bool consumed = false;
+
+  for (size_t i = 0; i < app->tasks->size; i++) {
+    Task task = app->tasks->array[i];
+
+    FURI_LOG_T(TAG, "Task %lu: Name: %s, Status: %s, Completed: %s",
+               (unsigned long)i, task.name, task_status_to_string(task.status),
+               task.completed ? "Yes" : "No");
+    break;
+  }
+
   switch (event.type) {
   case SceneManagerEventTypeCustom:
     switch (event.event) {
-    case AppEvent_TaskActions:
+    case AppEvent_TaskContinue:
+      scene_manager_next_scene(app->scene_manager, TaskContinue);
+      consumed = true;
+      break;
+    case AppEvent_EditTask:
+      scene_manager_next_scene(app->scene_manager, EditTask);
+      consumed = true;
+      break;
+    case AppEvent_ViewStats:
+      scene_manager_next_scene(app->scene_manager, ViewStats);
       consumed = true;
       break;
     }
@@ -161,4 +184,12 @@ void scene_on_exit_task_actions(void *context) {
   FURI_LOG_T(TAG, "scene_on_exit_task_actions");
   App *app = context;
   submenu_reset(app->submenu_task_actions);
+  for (size_t i = 0; i < app->tasks->size; i++) {
+    Task task = app->tasks->array[i];
+
+    FURI_LOG_T(TAG, "Task %lu: Name: %s, Status: %s, Completed: %s",
+               (unsigned long)i, task.name, task_status_to_string(task.status),
+               task.completed ? "Yes" : "No");
+    break;
+  }
 }

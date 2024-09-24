@@ -100,10 +100,11 @@ bool scene_on_event_task_name_input(void *context, SceneManagerEvent event) {
 
     FURI_LOG_T(TAG, "New task name: %s", app->current_task->name);
 
-    tasks_update(app, app->current_task);
-    find_and_replace_task_in_csv(app, app->current_task);
-    scene_manager_search_and_switch_to_previous_scene(app->scene_manager,
-                                                      EditTask);
+    if (tasks_update(app, app->current_task)) {
+      find_and_replace_task_in_csv(app, app->current_task);
+      scene_manager_search_and_switch_to_previous_scene(app->scene_manager,
+                                                        EditTask);
+    }
   }
 
   return consumed;

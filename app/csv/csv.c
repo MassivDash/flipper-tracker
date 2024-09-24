@@ -119,7 +119,11 @@ bool read_tasks_from_csv(App *app) {
     task.status = string_to_task_status(status_str);
 
     // Add the task to the tasks
-    tasks_add(app, &task);
+    if (tasks_add(app, &task)) {
+      FURI_LOG_I(TAG, "Task added to tasks");
+    } else {
+      FURI_LOG_E(TAG, "Failed to add task to tasks");
+    };
   }
 
   // Free the buffer

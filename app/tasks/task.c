@@ -46,9 +46,6 @@ void current_task_init(App *app) {
 }
 
 void current_task_update(App *app, const Task *current_task) {
-  if (app->current_task == NULL) {
-    app->current_task = malloc(sizeof(Task));
-  }
   *app->current_task = *current_task;
 }
 
@@ -57,18 +54,19 @@ void current_task_free(Task *current_task) {
   current_task = NULL;
 }
 
-void tasks_add(App *app, const Task *task) {
+bool tasks_add(App *app, const Task *task) {
   Tasks *tasks = app->tasks;
   if (tasks->size == tasks->capacity) {
     tasks->capacity = tasks->capacity == 0 ? 1 : tasks->capacity * 2;
     Task *new_array = realloc(tasks->array, tasks->capacity * sizeof(Task));
     if (new_array == NULL) {
       FURI_LOG_E(TAG, "Failed to allocate memory for tasks array");
-      return;
+      return false;
     }
     tasks->array = new_array;
   }
   tasks->array[tasks->size++] = *task;
+  return true;
 }
 void task_remove(App *app, const char *task_id) {
   Tasks *tasks = app->tasks;
@@ -140,14 +138,16 @@ bool create_new_task(App *app) {
   default_task.total_time_minutes = 0;
   default_task.status = TaskStatus_Stopped;
 
-  write_task_to_csv(app, &default_task);
-  tasks_add(app, &default_task);
-  current_task_update(app, &default_task);
+  if (tasks_add(app, &default_task)) {
+    write_task_to_csv(app, &default_task);
+    current_task_update(app, &default_task);
+  }
   return true;
 }
 
-void tasks_update(App *app, const Task *current_task) {
+bool tasks_update(App *app, const Task *current_task) {
   Tasks *tasks = app->tasks;
+  furi_assert(app->current_task != NULL, "Current task is NULL");
   bool task_found = false;
 
   for (size_t i = 0; i < tasks->size; ++i) {
@@ -161,7 +161,9 @@ void tasks_update(App *app, const Task *current_task) {
 
   if (!task_found) {
     FURI_LOG_E(TAG, "Task with ID %s not found.", current_task->id);
+    return false;
   }
+  return true;
 }
 
 void tasks_remove(App *app, const char *task_id) {

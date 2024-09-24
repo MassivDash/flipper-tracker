@@ -139,8 +139,9 @@ bool scene_on_event_task_continue(void *context, SceneManagerEvent event) {
         dialog_ex_set_center_button_text(dialog_ex, "Stop");
       }
 
-      tasks_update(app, app->current_task);
-      find_and_replace_task_in_csv(app, app->current_task);
+      if (tasks_update(app, app->current_task)) {
+        find_and_replace_task_in_csv(app, app->current_task);
+      }
       // update the scene
       task_continue_update(app);
 

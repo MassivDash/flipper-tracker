@@ -56,7 +56,6 @@ bool scene_manager_custom_event_callback(void *context, uint32_t custom_event) {
 /** navigation event handler - passes the event to the scene manager */
 bool scene_manager_navigation_event_callback(void *context) {
   FURI_LOG_T(TAG, "scene_manager_navigation_event_callback");
-  furi_assert(context);
   App *app = context;
   return scene_manager_handle_back_event(app->scene_manager);
 }

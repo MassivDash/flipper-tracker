@@ -184,12 +184,4 @@ void scene_on_exit_task_actions(void *context) {
   FURI_LOG_T(TAG, "scene_on_exit_task_actions");
   App *app = context;
   submenu_reset(app->submenu_task_actions);
-  for (size_t i = 0; i < app->tasks->size; i++) {
-    Task task = app->tasks->array[i];
-
-    FURI_LOG_T(TAG, "Task %lu: Name: %s, Status: %s, Completed: %s",
-               (unsigned long)i, task.name, task_status_to_string(task.status),
-               task.completed ? "Yes" : "No");
-    break;
-  }
 }

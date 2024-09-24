@@ -1,12 +1,11 @@
 #include <gui/modules/dialog_ex.h>
 #include <gui/modules/menu.h>
-#include <gui/modules/submenu.h>
-#include <gui/view.h>
-// #include <gui/modules/variable_item_list.h>
 #include <gui/modules/number_input.h>
+#include <gui/modules/submenu.h>
 #include <gui/modules/text_input.h>
 #include <gui/modules/variable_item_list.h>
 #include <gui/scene_manager.h>
+#include <gui/view.h>
 #include <gui/view_dispatcher.h>
 #include <storage/storage.h>
 
@@ -34,7 +33,6 @@ typedef struct {
   TextInput *text_input;
   VariableItemList *variable_item_list;
   char text_store[TEXT_STORE_SIZE + 1];
-  FuriMutex *mutex;
 } App;
 
 #endif // APP_H

@@ -34,8 +34,21 @@ void submenu_callback_view_tasks(void *context, uint32_t index) {
   App *app = context;
 
   if (index > 0 && index <= app->tasks->size) {
-    Task task = app->tasks->array[index - 1];
-    current_task_update(app, &task);
+    // Allocate memory for current_task
+    Task *task = &app->tasks->array[index - 1];
+    Task *current_task = (Task *)malloc(sizeof(Task));
+    if (current_task == NULL) {
+      FURI_LOG_E(TAG, "Failed to allocate memory for current_task");
+      return;
+    }
+
+    // Copy the contents of the selected task into current_task
+    memcpy(current_task, task, sizeof(Task));
+
+    // Update the current_task in the app context
+    app->current_task = current_task;
+
+    // Handle the custom event
     scene_manager_handle_custom_event(app->scene_manager, AppEvent_TaskActions);
   } else {
     FURI_LOG_W(TAG, "Invalid task index: %lu", (unsigned long)index);
@@ -59,16 +72,11 @@ void scene_on_enter_view_tasks(void *context) {
   if (app->tasks->array != NULL && app->tasks->size > 0) {
 
     // Sort tasks to push completed tasks to the bottom
-    // sort_tasks(app);
+    sort_tasks(app);
 
     // Add tasks to submenu
     for (size_t i = 0; i < app->tasks->size; i++) {
       Task *task = &app->tasks->array[i];
-
-      FURI_LOG_I(TAG, "Task %lu: Name: %s, Status: %s, Completed: %s",
-                 (unsigned long)i, task->name,
-                 task_status_to_string(task->status),
-                 task->completed ? "Yes" : "No");
 
       char task_label[128];
       if (!task->completed) {

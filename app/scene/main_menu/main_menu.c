@@ -5,6 +5,7 @@
 #include <furi.h>
 
 #define TAG "tracker_app"
+#include <trackerflipx_icons.h>
 
 /** main menu callback - sends a custom event to the scene manager based on the
  * menu selection */
@@ -56,14 +57,14 @@ void scene_on_enter_main_menu(void *context) {
 
     if (latest_task != NULL) {
       app->current_task = latest_task;
-      menu_add_item(app->menu, "Continue last task", NULL, QuickStart_Menu,
-                    menu_callback_main_menu, app);
+      menu_add_item(app->menu, "Continue last task", &A_Clock_14,
+                    QuickStart_Menu, menu_callback_main_menu, app);
     }
   }
 
   menu_add_item(app->menu, "Create a new task", NULL, CreateTask_Menu,
                 menu_callback_main_menu, app);
-  menu_add_item(app->menu, "View tasks", NULL, ViewTasks_Menu,
+  menu_add_item(app->menu, "View tasks", &A_ViewTasks_14, ViewTasks_Menu,
                 menu_callback_main_menu, app);
 
   view_dispatcher_switch_to_view(app->view_dispatcher, AppView_Menu);

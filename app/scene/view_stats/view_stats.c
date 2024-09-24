@@ -199,4 +199,5 @@ void scene_on_exit_view_stats(void *context) {
   FURI_LOG_D(TAG, "scene_on_exit_view_stats");
   App *app = context;
   view_free_model(app->view);
+  shared_task = NULL;
 }

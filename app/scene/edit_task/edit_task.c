@@ -93,7 +93,7 @@ bool scene_on_event_edit_task(void *context, SceneManagerEvent event) {
     consumed = true;
     switch (event.event) {
     case EditTaskIndexName:
-      // Handle name editing event
+      scene_manager_next_scene(app->scene_manager, TaskNameInput);
       break;
     case EditTaskIndexDescription:
       // Handle description editing event

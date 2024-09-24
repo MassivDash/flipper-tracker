@@ -15,6 +15,8 @@
 // app/app.h
 #ifndef APP_H
 #define APP_H
+#define KEY_NAME_SIZE 22
+#define TEXT_STORE_SIZE 40
 
 typedef struct {
   SceneManager *scene_manager;
@@ -31,6 +33,8 @@ typedef struct {
   NumberInput *number_input;
   TextInput *text_input;
   VariableItemList *variable_item_list;
+  char text_store[TEXT_STORE_SIZE + 1];
+  FuriMutex *mutex;
 } App;
 
 #endif // APP_H

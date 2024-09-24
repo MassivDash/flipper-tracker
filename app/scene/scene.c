@@ -5,36 +5,38 @@
 #include <gui/modules/dialog_ex.h>
 #include <gui/view.h>
 // scenes
+#include "./edit_name/edit_name.h"
 #include "./edit_task/edit_task.h"
 #include "./main_menu/main_menu.h"
 #include "./task_continue/task_continue.h"
 #include "./view_stats/view_stats.h"
 #include "./view_task/view_task.h"
 
-#define TAG "tracker_app"
-
 #include <trackerflipx_icons.h> // created later after ubft run
 
 /** collection of all scene on_enter handlers - in the same order as their enum
  */
 void (*const scene_on_enter_handlers[])(void *) = {
-    scene_on_enter_main_menu,    scene_on_enter_view_tasks,
-    scene_on_enter_task_actions, scene_on_enter_task_continue,
-    scene_on_enter_view_stats,   scene_on_enter_edit_task};
+    scene_on_enter_main_menu,      scene_on_enter_view_tasks,
+    scene_on_enter_task_actions,   scene_on_enter_task_continue,
+    scene_on_enter_view_stats,     scene_on_enter_edit_task,
+    scene_on_enter_task_name_input};
 
 /** collection of all scene on event handlers - in the same order as their enum
  */
 bool (*const scene_on_event_handlers[])(void *, SceneManagerEvent) = {
-    scene_on_event_main_menu,    scene_on_event_view_tasks,
-    scene_on_event_task_actions, scene_on_event_task_continue,
-    scene_on_event_view_stats,   scene_on_event_edit_task};
+    scene_on_event_main_menu,      scene_on_event_view_tasks,
+    scene_on_event_task_actions,   scene_on_event_task_continue,
+    scene_on_event_view_stats,     scene_on_event_edit_task,
+    scene_on_event_task_name_input};
 
 /** collection of all scene on exit handlers - in the same order as their enum
  */
 void (*const scene_on_exit_handlers[])(void *) = {
-    scene_on_exit_main_menu,    scene_on_exit_view_tasks,
-    scene_on_exit_task_actions, scene_on_exit_task_continue,
-    scene_on_exit_view_stats,   scene_on_exit_edit_task};
+    scene_on_exit_main_menu,      scene_on_exit_view_tasks,
+    scene_on_exit_task_actions,   scene_on_exit_task_continue,
+    scene_on_exit_view_stats,     scene_on_exit_edit_task,
+    scene_on_exit_task_name_input};
 
 /** collection of all on_enter, on_event, on_exit handlers */
 const SceneManagerHandlers scene_event_handlers = {
@@ -80,6 +82,7 @@ void view_dispatcher_init(App *app) {
   app->submenu_task_actions = submenu_alloc();
   app->dialog = dialog_ex_alloc();
   app->view = view_alloc();
+  app->text_store[0] = '\0';
 
   // assign callback that pass events from views to the scene manager
   FURI_LOG_D(TAG, "view_dispatcher_init setting callbacks");
@@ -119,7 +122,7 @@ void view_dispatcher_init(App *app) {
       variable_item_list_get_view(app->variable_item_list));
 
   view_dispatcher_add_view(app->view_dispatcher, AppView_TaskNameInput,
-                           app->view);
+                           text_input_get_view(app->text_input));
   view_dispatcher_add_view(app->view_dispatcher, AppView_TaskDescriptionInput,
                            app->view);
   view_dispatcher_add_view(app->view_dispatcher, AppView_NumberInput,

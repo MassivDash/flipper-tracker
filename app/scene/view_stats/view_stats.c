@@ -73,22 +73,31 @@ static void view_stats_draw_callback(Canvas *canvas, void *_model) {
   const size_t btn_number = sizeof(fields) / sizeof(fields[0]);
   const bool show_scrollbar = btn_number > LIST_ITEMS;
 
+  uint8_t y_offset = HEADER_H;
   for (uint32_t i = 0; i < MIN(btn_number, LIST_ITEMS); i++) {
     int32_t idx = CLAMP((uint32_t)(i + model->list_offset), btn_number, 0U);
-    uint8_t x_offset = (model->current_idx == idx) ? MOVE_X_OFFSET : 0;
-    uint8_t y_offset = HEADER_H + i * LIST_LINE_H;
+    uint8_t x_offset = 0; // No indent on selection
     uint8_t box_end_x = canvas_width(canvas) - (show_scrollbar ? 6 : 1);
 
     canvas_set_color(canvas, ColorBlack);
     if (model->current_idx == idx) {
       canvas_draw_box(canvas, x_offset, y_offset, box_end_x - x_offset,
-                      LIST_LINE_H);
+                      LIST_LINE_H * 2); // Adjust height for expanded view
       canvas_set_color(canvas, ColorWhite);
+      // Draw expanded details
+      canvas_draw_str_aligned(canvas, x_offset + 3, y_offset + 3, AlignLeft,
+                              AlignTop, fields[idx]);
+      canvas_draw_str_aligned(canvas, x_offset + 3, y_offset + 3 + LIST_LINE_H,
+                              AlignLeft, AlignTop, values[idx]);
+      y_offset += LIST_LINE_H * 2; // Adjust y_offset for expanded view
+    } else {
+      // Draw normal item
+      canvas_draw_str_aligned(canvas, x_offset + 3, y_offset + 3, AlignLeft,
+                              AlignTop, fields[idx]);
+      canvas_draw_str_aligned(canvas, x_offset + 64, y_offset + 3, AlignLeft,
+                              AlignTop, values[idx]);
+      y_offset += LIST_LINE_H; // Normal y_offset increment
     }
-    canvas_draw_str_aligned(canvas, x_offset + 3, y_offset + 3, AlignLeft,
-                            AlignTop, fields[idx]);
-    canvas_draw_str_aligned(canvas, x_offset + 64, y_offset + 3, AlignLeft,
-                            AlignTop, values[idx]);
   }
 
   if (show_scrollbar) {
@@ -104,7 +113,7 @@ static void update_list_offset(ViewStatsModel *model) {
 
   if ((btn_number > (LIST_ITEMS - 1)) &&
       (model->current_idx >= ((int32_t)btn_number - 1))) {
-    model->list_offset = model->current_idx - (LIST_ITEMS - 1);
+    model->list_offset = model->current_idx - (LIST_ITEMS - 2);
   } else if (model->list_offset < model->current_idx - bounds) {
     model->list_offset = CLAMP(model->current_idx - (int32_t)(LIST_ITEMS - 2),
                                (int32_t)btn_number - bounds, 0);

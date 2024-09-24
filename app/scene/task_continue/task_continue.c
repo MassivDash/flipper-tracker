@@ -34,9 +34,9 @@ static void task_continue_update(App *app) {
       format_time_string(total_time_formatted, sizeof(total_time_formatted),
                          app->current_task->total_time_minutes +
                              elapsed_minutes);
-      snprintf(buffer_text, sizeof(buffer_text),
-               "%ld min %ld sec\ntotal of: %s", (long)elapsed_minutes,
-               (long)elapsed_remaining_seconds, total_time_formatted);
+      snprintf(buffer_text, sizeof(buffer_text), "%ld min %ld sec\n%s total",
+               (long)elapsed_minutes, (long)elapsed_remaining_seconds,
+               total_time_formatted);
       dialog_ex_set_icon(dialog_ex, 1, 1, &I_dolphinWait_59x54);
     } else {
       snprintf(buffer_text, sizeof(buffer_text), "%ld min %ld sec",
@@ -50,7 +50,7 @@ static void task_continue_update(App *app) {
     if (app->current_task->completed) {
       format_time_string(total_time_formatted, sizeof(total_time_formatted),
                          app->current_task->total_time_minutes);
-      snprintf(buffer_text, sizeof(buffer_text), "\n\n\n\nTotal at %s",
+      snprintf(buffer_text, sizeof(buffer_text), "\n\n\n\n%s total",
                total_time_formatted);
       dialog_ex_set_icon(dialog_ex, -40, 1, &I_dolphinMafia_119x62);
     } else {
@@ -60,7 +60,7 @@ static void task_continue_update(App *app) {
       } else {
         format_time_string(total_time_formatted, sizeof(total_time_formatted),
                            app->current_task->total_time_minutes);
-        snprintf(buffer_text, sizeof(buffer_text), "Stopped at %s",
+        snprintf(buffer_text, sizeof(buffer_text), "Stopped at\n%s",
                  total_time_formatted);
         dialog_ex_set_icon(dialog_ex, -20, 1, &I_DolphinDone_80x58);
       }
@@ -69,7 +69,7 @@ static void task_continue_update(App *app) {
     break;
   }
 
-  dialog_ex_set_text(dialog_ex, buffer_text, 64, 20, AlignLeft, AlignCenter);
+  dialog_ex_set_text(dialog_ex, buffer_text, 64, 22, AlignLeft, AlignCenter);
   dialog_ex_set_left_button_text(dialog_ex, "Exit");
   dialog_ex_set_result_callback(dialog_ex, task_continue_scene_dialog_callback);
   dialog_ex_set_context(dialog_ex, app);

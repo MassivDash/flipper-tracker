@@ -19,50 +19,54 @@ static void task_continue_scene_dialog_callback(DialogExResult result,
 }
 static void task_continue_update(App *app) {
   DialogEx *dialog_ex = app->dialog;
-
   char buffer_text[256];
+  char total_time_formatted[64];
+  DateTime current_time = {0};
+  furi_hal_rtc_get_datetime(&current_time);
+  int32_t elapsed_seconds = calculate_time_difference_in_seconds(
+      &app->current_task->last_start_time, &current_time);
+  int32_t elapsed_minutes = elapsed_seconds / 60;
+  int32_t elapsed_remaining_seconds = elapsed_seconds % 60;
 
-  bool is_task_running = app->current_task->status == TaskStatus_Running;
-  if (is_task_running) {
-    // Calculate elapsed time
-    DateTime current_time = {0};
-    furi_hal_rtc_get_datetime(&current_time);
-    int32_t elapsed_seconds = calculate_time_difference_in_seconds(
-        &app->current_task->last_start_time, &current_time);
-    int32_t elapsed_minutes = elapsed_seconds / 60;
-    int32_t elapsed_remaining_seconds = elapsed_seconds % 60;
-
+  switch (app->current_task->status) {
+  case TaskStatus_Running:
     if (app->current_task->total_time_minutes > 0) {
-      char total_time_formatted[64];
       format_time_string(total_time_formatted, sizeof(total_time_formatted),
                          app->current_task->total_time_minutes +
                              elapsed_minutes);
       snprintf(buffer_text, sizeof(buffer_text),
                "%ld min %ld sec\ntotal of: %s", (long)elapsed_minutes,
                (long)elapsed_remaining_seconds, total_time_formatted);
-
       dialog_ex_set_icon(dialog_ex, 1, 1, &I_dolphinWait_59x54);
     } else {
       snprintf(buffer_text, sizeof(buffer_text), "%ld min %ld sec",
                (long)elapsed_minutes, (long)elapsed_remaining_seconds);
       dialog_ex_set_icon(dialog_ex, 1, 1, &I_dolphinWait_59x54);
     }
-
     dialog_ex_set_center_button_text(dialog_ex, "Stop");
-  } else {
-    if (app->current_task->total_time_minutes == 0) {
-      snprintf(buffer_text, sizeof(buffer_text), "Start the task !");
-      dialog_ex_set_icon(dialog_ex, 1, 1, &I_DolphinReadingSuccess_59x63);
-    } else {
-      char total_time_formatted[64];
+    break;
+
+  case TaskStatus_Stopped:
+    if (app->current_task->completed) {
       format_time_string(total_time_formatted, sizeof(total_time_formatted),
                          app->current_task->total_time_minutes);
-      dialog_ex_set_icon(dialog_ex, 1, 1, &I_DolphinDone_80x58);
-      snprintf(buffer_text, sizeof(buffer_text), "stopped at %s",
+      snprintf(buffer_text, sizeof(buffer_text), "Completed at %s",
                total_time_formatted);
+      dialog_ex_set_icon(dialog_ex, -10, 1, &I_DolphinDone_80x58);
+    } else {
+      if (app->current_task->total_time_minutes == 0) {
+        snprintf(buffer_text, sizeof(buffer_text), "Start the task !");
+        dialog_ex_set_icon(dialog_ex, 1, 1, &I_DolphinReadingSuccess_59x63);
+      } else {
+        format_time_string(total_time_formatted, sizeof(total_time_formatted),
+                           app->current_task->total_time_minutes);
+        snprintf(buffer_text, sizeof(buffer_text), "Stopped at %s",
+                 total_time_formatted);
+        dialog_ex_set_icon(dialog_ex, 1, 1, &I_DolphinDone_80x58);
+      }
+      dialog_ex_set_center_button_text(dialog_ex, "Start");
     }
-
-    dialog_ex_set_center_button_text(dialog_ex, "Start");
+    break;
   }
 
   dialog_ex_set_text(dialog_ex, buffer_text, 64, 20, AlignLeft, AlignCenter);

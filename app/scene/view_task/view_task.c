@@ -1,7 +1,9 @@
 #include "../../app.h"
 #include "../../csv/csv.h"
+#include "../../datetime/datetime.h"
 #include "../../structs.h"
 #include "../../tasks/task.h"
+#include <datetime/datetime.h>
 #include <furi.h>
 #include <furi_hal.h>
 #include <gui/modules/submenu.h>
@@ -12,6 +14,8 @@ void submenu_callback_task_actions(void *context, uint32_t index) {
   FURI_LOG_T(TAG, "submenu_callback_task_actions");
   furi_assert(context);
   App *app = context;
+  DateTime current_time = {0};
+  DateTime datetime_start_time = app->current_task->last_start_time;
 
   // Ensure app and its members are properly initialized
   if (!app || !app->current_task) {
@@ -39,9 +43,22 @@ void submenu_callback_task_actions(void *context, uint32_t index) {
     // Add your logic here
     break;
   case TaskAction_ToggleCompleted:
+
+    furi_hal_rtc_get_datetime(&current_time);
+
     // Handle "Toggle Completed" action
     FURI_LOG_I(TAG, "Toggle completed for task: %s", app->current_task->name);
     app->current_task->completed = !app->current_task->completed;
+
+    if (app->current_task->status == TaskStatus_Running) {
+
+      app->current_task->status = TaskStatus_Stopped;
+      app->current_task->end_time = current_time;
+
+      int32_t time_difference_minutes = calculate_time_difference_in_minutes(
+          &datetime_start_time, &current_time);
+      app->current_task->total_time_minutes += time_difference_minutes;
+    }
     // Update the submenu to reflect the new state
     submenu_change_item_label(
         app->submenu_task_actions, TaskAction_ToggleCompleted,

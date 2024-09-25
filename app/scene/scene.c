@@ -7,6 +7,7 @@
 // scenes
 #include "./edit_description/edit_description.h"
 #include "./edit_name/edit_name.h"
+#include "./edit_price/edit_price.h"
 #include "./edit_task/edit_task.h"
 #include "./main_menu/main_menu.h"
 #include "./task_continue/task_continue.h"
@@ -21,7 +22,8 @@ void (*const scene_on_enter_handlers[])(void *) = {
     scene_on_enter_main_menu,       scene_on_enter_view_tasks,
     scene_on_enter_task_actions,    scene_on_enter_task_continue,
     scene_on_enter_view_stats,      scene_on_enter_edit_task,
-    scene_on_enter_task_name_input, scene_on_enter_task_description_input};
+    scene_on_enter_task_name_input, scene_on_enter_task_description_input,
+    scene_on_enter_price_input};
 
 /** collection of all scene on event handlers - in the same order as their enum
  */
@@ -29,7 +31,8 @@ bool (*const scene_on_event_handlers[])(void *, SceneManagerEvent) = {
     scene_on_event_main_menu,       scene_on_event_view_tasks,
     scene_on_event_task_actions,    scene_on_event_task_continue,
     scene_on_event_view_stats,      scene_on_event_edit_task,
-    scene_on_event_task_name_input, scene_on_event_task_description_input};
+    scene_on_event_task_name_input, scene_on_event_task_description_input,
+    scene_on_event_price_input};
 
 /** collection of all scene on exit handlers - in the same order as their enum
  */
@@ -37,7 +40,8 @@ void (*const scene_on_exit_handlers[])(void *) = {
     scene_on_exit_main_menu,       scene_on_exit_view_tasks,
     scene_on_exit_task_actions,    scene_on_exit_task_continue,
     scene_on_exit_view_stats,      scene_on_exit_edit_task,
-    scene_on_exit_task_name_input, scene_on_exit_task_description_input};
+    scene_on_exit_task_name_input, scene_on_exit_task_description_input,
+    scene_on_exit_price_input};
 
 /** collection of all on_enter, on_event, on_exit handlers */
 const SceneManagerHandlers scene_event_handlers = {
@@ -126,5 +130,5 @@ void view_dispatcher_init(App *app) {
   view_dispatcher_add_view(app->view_dispatcher, AppView_TaskDescriptionInput,
                            text_input_get_view(app->text_input));
   view_dispatcher_add_view(app->view_dispatcher, AppView_NumberInput,
-                           app->view);
+                           number_input_get_view(app->number_input));
 }

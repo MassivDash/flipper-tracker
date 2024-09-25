@@ -39,6 +39,7 @@ void app_free(App *app) {
   dialog_ex_free(app->dialog);
   tasks_free(app->tasks);
   current_task_free(app->current_task);
+  furi_timer_free(app->timer);
   furi_record_close(RECORD_STORAGE);
   storage_file_free(app->file);
   free(app);

@@ -87,6 +87,9 @@ void view_dispatcher_init(App *app) {
   app->dialog = dialog_ex_alloc();
   app->view = view_alloc();
   app->text_store[0] = '\0';
+  // Initialize and start the timer to update every second
+  app->timer = furi_timer_alloc(task_continue_timer_callback,
+                                FuriTimerTypePeriodic, app);
 
   // assign callback that pass events from views to the scene manager
   FURI_LOG_D(TAG, "view_dispatcher_init setting callbacks");

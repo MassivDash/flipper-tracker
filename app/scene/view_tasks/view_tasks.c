@@ -67,7 +67,10 @@ void scene_on_enter_view_tasks(void *context) {
   FURI_LOG_T(TAG, "scene_on_enter_view_task");
   App *app = context;
   submenu_reset(app->submenu);
-  submenu_set_header(app->submenu, "Tasks");
+  char header[128];
+  snprintf(header, sizeof(header), "Tasks (%lu)",
+           (unsigned long)app->tasks->size);
+  submenu_set_header(app->submenu, header);
 
   if (app->tasks->array != NULL && app->tasks->size > 0) {
 

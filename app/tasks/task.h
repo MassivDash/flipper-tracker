@@ -10,7 +10,7 @@
 void tasks_init(App *app);
 bool tasks_add(App *app, const Task *task);
 bool tasks_update(App *app, const Task *current_task);
-void tasks_remove(App *app, const char *task_id);
+bool tasks_remove(App *app, const Task *task);
 void current_task_init(App *app);
 void current_task_free(Task *task);
 void current_task_update(App *app, const Task *current_task);

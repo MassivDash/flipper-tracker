@@ -166,26 +166,28 @@ bool tasks_update(App *app, const Task *current_task) {
   return true;
 }
 
-void tasks_remove(App *app, const char *task_id) {
+bool tasks_remove(App *app, const Task *task) {
   Tasks *tasks = app->tasks;
   bool task_found = false;
 
   for (size_t i = 0; i < tasks->size; ++i) {
-    if (strcmp(tasks->array[i].id, task_id) == 0) {
+    if (strcmp(tasks->array[i].id, task->id) == 0) {
       task_found = true;
       // Shift the remaining tasks to fill the gap
       for (size_t j = i; j < tasks->size - 1; ++j) {
         tasks->array[j] = tasks->array[j + 1];
       }
       tasks->size--;
-      FURI_LOG_I(TAG, "Task with ID %s removed.", task_id);
+      FURI_LOG_I(TAG, "Task with ID %s removed.", task->id);
       break;
     }
   }
 
   if (!task_found) {
-    FURI_LOG_E(TAG, "Task with ID %s not found.", task_id);
+    FURI_LOG_E(TAG, "Task with ID %s not found.", task->id);
+    return false;
   }
+  return true;
 }
 
 void tasks_free(Tasks *tasks) {

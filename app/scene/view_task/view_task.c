@@ -60,11 +60,6 @@ void submenu_callback_task_actions(void *context, uint32_t index) {
         app->submenu_task_actions, TaskAction_ToggleCompleted,
         app->current_task->completed ? "Unmark as done" : "Mark as done");
 
-    // Log the task completion status
-
-    FURI_LOG_I(TAG, "Task %s marked as %s", app->current_task->name,
-               app->current_task->completed ? "done" : "not done");
-
     // Update the task in the CSV file
     if (tasks_update(app, app->current_task)) {
       find_and_replace_task_in_csv(app, app->current_task);
@@ -73,11 +68,13 @@ void submenu_callback_task_actions(void *context, uint32_t index) {
     break;
   case TaskAction_Delete:
     // Handle "Delete" action
-    FURI_LOG_I(TAG, "Delete task: %s", app->current_task->name);
-    delete_task_from_csv(app, app->current_task->id);
-    tasks_remove(app, app->current_task->id);
-    scene_manager_search_and_switch_to_previous_scene(app->scene_manager,
-                                                      ViewTasks);
+    if (tasks_remove(app, app->current_task)) {
+
+      delete_task_from_csv(app, app->current_task->id);
+      scene_manager_search_and_switch_to_previous_scene(app->scene_manager,
+                                                        ViewTasks);
+    };
+
     break;
   default:
     break;
@@ -92,15 +89,6 @@ void scene_on_enter_task_actions(void *context) {
   if (!app || !app->current_task) {
     FURI_LOG_E(TAG, "Invalid app or uninitialized current_task");
     return;
-  }
-
-  for (size_t i = 0; i < app->tasks->size; i++) {
-    Task task = app->tasks->array[i];
-
-    FURI_LOG_T(TAG, "Task %lu: Name: %s, Status: %s, Completed: %s",
-               (unsigned long)i, task.name, task_status_to_string(task.status),
-               task.completed ? "Yes" : "No");
-    break;
   }
 
   submenu_reset(app->submenu_task_actions);
@@ -144,15 +132,6 @@ bool scene_on_event_task_actions(void *context, SceneManagerEvent event) {
   FURI_LOG_T(TAG, "scene_on_event_task_actions");
   App *app = context;
   bool consumed = false;
-
-  for (size_t i = 0; i < app->tasks->size; i++) {
-    Task task = app->tasks->array[i];
-
-    FURI_LOG_T(TAG, "Task %lu: Name: %s, Status: %s, Completed: %s",
-               (unsigned long)i, task.name, task_status_to_string(task.status),
-               task.completed ? "Yes" : "No");
-    break;
-  }
 
   switch (event.type) {
   case SceneManagerEventTypeCustom:

@@ -40,6 +40,8 @@ typedef enum {
   AppEvent_EditTask,
   AppEvent_TaskNameInput,
   AppEvent_ViewStats,
+  AppEvent_TaskDescriptionInput,
+  AppEvent_PriceInput,
 } AppEvent;
 
 /* main menu scene */

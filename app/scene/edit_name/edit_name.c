@@ -33,15 +33,6 @@ bool validator_is_text_callback(const char *text, FuriString *error,
     return false;
   }
 
-  // Check if the text contains only valid characters (e.g., alphanumeric and
-  // spaces)
-  for (const char *p = text; *p != '\0'; ++p) {
-    if (!isalnum((unsigned char)*p) && *p != ' ') {
-      furi_string_set_str(error, "Invalid character in input.");
-      return false;
-    }
-  }
-
   // If all checks pass, return true
   return true;
 }
@@ -116,4 +107,5 @@ void scene_on_exit_task_name_input(void *context) {
 
   text_input_reset(text_input);
   text_input_set_validator(text_input, NULL, NULL);
+  app->text_store[0] = '\0';
 }

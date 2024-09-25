@@ -13,7 +13,6 @@
 #define TAG "edit_task_name"
 
 // Function declarations
-void text_input_callback(void *context);
 void scene_on_enter_task_name_input(void *context);
 bool scene_on_event_task_name_input(void *context, SceneManagerEvent event);
 void scene_on_exit_task_name_input(void *context);

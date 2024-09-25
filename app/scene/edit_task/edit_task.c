@@ -96,10 +96,10 @@ bool scene_on_event_edit_task(void *context, SceneManagerEvent event) {
       scene_manager_next_scene(app->scene_manager, TaskNameInput);
       break;
     case EditTaskIndexDescription:
-      // Handle description editing event
+      scene_manager_next_scene(app->scene_manager, TaskDescriptionInput);
       break;
     case EditTaskIndexPricePerHour:
-      // Handle price per hour editing event
+      scene_manager_next_scene(app->scene_manager, PriceInput);
       break;
     default:
       furi_crash("Unknown key type");

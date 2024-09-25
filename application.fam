@@ -6,9 +6,9 @@ App(
     apptype=FlipperAppType.EXTERNAL,
     entry_point="app",
     stack_size=2 * 1024,
-    fap_category="MyApps",
-    fap_version=(0, 1), 
-    fap_icon="test_app.png",  # 10x10 1-bit PNG
+    fap_category="Tools",
+    fap_version=(0, 1),
+    fap_icon="flipper_time_tracker.png",  # 10x10 1-bit PNG
     fap_description="Time tracker for flipper",
     fap_author="Lukasz Celitan<spaceout.com>",
     fap_weburl="https://github.com/MassivDash/flipper-tracker",

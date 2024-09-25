@@ -1,4 +1,5 @@
 #include "../../app.h"
+#include "../../csv/csv.h"
 #include "../../structs.h"
 #include "../../tasks/task.h"
 #include <furi.h>
@@ -63,9 +64,41 @@ void submenu_callback_no_tasks(void *context, uint32_t index) {
                                                     MainMenu);
 }
 
+void sync_tasks_from_csv(App *app) {
+  FURI_LOG_T(TAG, "sync_tasks_from_csv");
+  furi_assert(app);
+
+  // Ensure app->tasks is initialized
+  if (app->tasks == NULL) {
+    app->tasks = (Tasks *)malloc(sizeof(Tasks));
+    if (app->tasks == NULL) {
+      FURI_LOG_E(TAG, "Failed to allocate memory for app->tasks");
+      return;
+    }
+    app->tasks->array = NULL;
+    app->tasks->size = 0;
+  }
+
+  // Clear the existing tasks array
+  if (app->tasks->array != NULL) {
+    free(app->tasks->array);
+    app->tasks->array = NULL;
+    app->tasks->size = 0;
+  }
+
+  // Read tasks from CSV and update the tasks array
+  if (!read_tasks_from_csv(app)) {
+    FURI_LOG_E(TAG, "Failed to read tasks from CSV");
+  }
+}
+
 void scene_on_enter_view_tasks(void *context) {
   FURI_LOG_T(TAG, "scene_on_enter_view_task");
   App *app = context;
+
+  // Sync tasks from CSV
+  // sync_tasks_from_csv(app);
+
   submenu_reset(app->submenu);
   char header[128];
   snprintf(header, sizeof(header), "Tasks (%lu)",

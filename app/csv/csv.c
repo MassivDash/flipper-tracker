@@ -75,6 +75,7 @@ static bool read_line_from_file(App *app, FuriString *str_result) {
   FURI_LOG_I(TAG, "result: %s", furi_string_get_cstr(str_result));
   return result;
 }
+
 bool read_tasks_from_csv(App *app) {
   // Allocate a FuriString buffer
   FuriString *buffer = furi_string_alloc();

@@ -97,13 +97,13 @@ bool scene_on_event_task_continue(void *context, SceneManagerEvent event) {
   App *app = context;
   DialogEx *dialog_ex = app->dialog;
   bool consumed = false;
+  Task *task_copy = (Task *)malloc(sizeof(Task));
 
   if (event.type == SceneManagerEventTypeCustom) {
 
     switch (event.event) {
     case DialogExResultCenter: {
       // Allocate memory for a copy of current_task
-      Task *task_copy = (Task *)malloc(sizeof(Task));
       if (task_copy == NULL) {
         FURI_LOG_E(TAG, "Failed to allocate memory for task_copy");
         return false;
@@ -147,9 +147,16 @@ bool scene_on_event_task_continue(void *context, SceneManagerEvent event) {
 
       // Update the original current_task with the modified copy
       memcpy(app->current_task, task_copy, sizeof(Task));
-      if (tasks_update(app, task_copy)) {
-        find_and_replace_task_in_csv(app, task_copy);
+      // Find and update the task in Tasks array
+      if (task_copy != NULL && app->tasks->array != NULL) {
+        for (size_t i = 0; i < app->tasks->size; i++) {
+          if (app->tasks->array[i].id == task_copy->id) {
+            memcpy(&app->tasks->array[i], task_copy, sizeof(Task));
+            break;
+          }
+        }
       }
+
       // Free the allocated memory for task_copy
       free(task_copy);
       // Update the scene

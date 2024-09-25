@@ -26,6 +26,10 @@ void generate_id(char *id, size_t length) {
 
 void tasks_init(App *app) {
   app->tasks = malloc(sizeof(Tasks));
+  if (app->tasks == NULL) {
+    FURI_LOG_E(TAG, "Failed to allocate memory for tasks");
+    return;
+  }
   app->tasks->array = NULL;
   app->tasks->size = 0;
   app->tasks->capacity = 0;
@@ -33,6 +37,10 @@ void tasks_init(App *app) {
 
 void current_task_init(App *app) {
   app->current_task = malloc(sizeof(Task));
+  if (app->current_task == NULL) {
+    FURI_LOG_E(TAG, "Failed to allocate memory for current_task");
+    return;
+  }
   app->current_task->id[0] = '\0';
   app->current_task->name[0] = '\0';
   app->current_task->description[0] = '\0';
@@ -46,18 +54,35 @@ void current_task_init(App *app) {
 }
 
 void current_task_update(App *app, const Task *current_task) {
+  if (app->current_task == NULL) {
+    FURI_LOG_E(TAG, "current_task is NULL");
+    return;
+  }
   *app->current_task = *current_task;
 }
 
 void current_task_free(Task *current_task) {
-  free(current_task);
-  current_task = NULL;
+  if (current_task != NULL) {
+    free(current_task);
+    current_task = NULL;
+  }
 }
 
 bool tasks_add(App *app, const Task *task) {
+  // Check for null pointers
+  if (app == NULL || app->tasks == NULL || task == NULL) {
+    FURI_LOG_E(TAG, "Null pointer passed to tasks_add");
+    return false;
+  }
+
   Tasks *tasks = app->tasks;
+
+  // Check if we need to reallocate memory for the tasks array
   if (tasks->size == tasks->capacity) {
+    // Double the capacity or set it to 1 if it's currently 0
     tasks->capacity = tasks->capacity == 0 ? 1 : tasks->capacity * 2;
+
+    // Reallocate memory for the tasks array
     Task *new_array = realloc(tasks->array, tasks->capacity * sizeof(Task));
     if (new_array == NULL) {
       FURI_LOG_E(TAG, "Failed to allocate memory for tasks array");
@@ -65,9 +90,17 @@ bool tasks_add(App *app, const Task *task) {
     }
     tasks->array = new_array;
   }
-  tasks->array[tasks->size++] = *task;
+
+  // Add the task to the array
+  tasks->array[tasks->size] = *task;
+
+  // Update app->current_task to point to the newly added task
+  app->current_task = &tasks->array[tasks->size];
+
+  tasks->size++;
   return true;
 }
+
 void task_remove(App *app, const char *task_id) {
   Tasks *tasks = app->tasks;
   bool task_found = false;
@@ -147,7 +180,10 @@ bool create_new_task(App *app) {
 
 bool tasks_update(App *app, const Task *current_task) {
   Tasks *tasks = app->tasks;
-  furi_assert(app->current_task != NULL, "Current task is NULL");
+  if (app->current_task == NULL) {
+    FURI_LOG_E(TAG, "Current task is NULL");
+    return false;
+  }
   bool task_found = false;
 
   for (size_t i = 0; i < tasks->size; ++i) {
@@ -191,10 +227,12 @@ bool tasks_remove(App *app, const Task *task) {
 }
 
 void tasks_free(Tasks *tasks) {
-  free(tasks->array);
-  tasks->array = NULL;
-  tasks->size = 0;
-  tasks->capacity = 0;
+  if (tasks != NULL) {
+    free(tasks->array);
+    tasks->array = NULL;
+    tasks->size = 0;
+    tasks->capacity = 0;
+  }
 }
 
 TaskStatus string_to_task_status(const char *status_str) {

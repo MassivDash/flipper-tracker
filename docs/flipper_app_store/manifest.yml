@@ -16,7 +16,7 @@ sourcecode:
 ## you can also specify a file from your app's repository as a source with @
 description: |
   Flipper Time Tracker is an application for flipperzero device that allows the user to track multiple tasks at the same time.
-
+author: "@MassivDash (https://spaceout.pl)"
 changelog: "@CHANGELOG.md"
 ## Unmodified screenshots from qFlipper
 screenshots:

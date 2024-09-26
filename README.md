@@ -16,6 +16,7 @@ Application uses csv file to store and handle task data that can be easily expor
 - edit task details (name, description, price per hour)
 - quick continue last used task
 - task running with timer counter view
+- you can download your csv file from `apps_data/trackerflipx/data.csv`
 
 ## Notes
 

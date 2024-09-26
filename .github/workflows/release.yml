@@ -4,6 +4,10 @@ on:
   push:
     tags:
       - "v*.*.*" # Triggers the workflow on version tags
+    workflow_dispatch: # Allows the workflow to be run on demand
+
+permissions:
+  contents: write # Grants write permissions
 
 jobs:
   build-and-release:

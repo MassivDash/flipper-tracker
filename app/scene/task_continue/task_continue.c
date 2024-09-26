@@ -148,7 +148,10 @@ bool scene_on_event_task_continue(void *context, SceneManagerEvent event) {
       // Update the original current_task with the modified copy
       memcpy(app->current_task, task_copy, sizeof(Task));
       // Find and update the task in Tasks array
-      tasks_update(app, task_copy);
+      if (tasks_update(app, task_copy)) {
+        // Write the updated task to the CSV file
+        find_and_replace_task_in_csv(app, task_copy);
+      }
 
       // Free the allocated memory for task_copy
       free(task_copy);

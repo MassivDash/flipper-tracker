@@ -1,3 +1,6 @@
+v.1.0.3
+Fix errors in application.fam for the shop
+
 v1.0.2
 Added screenshots and info for the flipperzero store
 
